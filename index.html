@@ -34,22 +34,22 @@ h1{font-weight:900;font-size:clamp(2em,6vw,3.4em);margin:0 0 4px;letter-spacing:
 .round{width:50px;height:50px;border-radius:50%;background:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
 .round:active{transform:translateY(4px);box-shadow:none}
 .round.off{opacity:.55;background:#ddd}
+.round.danger{background:#ffebee}
 #hud{position:fixed;top:14px;left:14px;z-index:100;display:flex;gap:10px;flex-wrap:wrap}
 .hud-pill{background:rgba(0,0,0,.35);backdrop-filter:blur(6px);padding:11px 16px;border-radius:30px;font-weight:900;font-size:.95em}
 
 /* Botones 3D */
-.k-btn{padding:14px 30px;margin:8px;border:none;border-radius:8px;font-family:inherit;font-weight:900;font-size:1.15em;color:#fff;background:var(--green);box-shadow:0 6px 0 var(--green-d);cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:transform .08s,box-shadow .08s}
+.k-btn{padding:14px 26px;margin:6px;border:none;border-radius:8px;font-family:inherit;font-weight:900;font-size:1.08em;color:#fff;background:var(--green);box-shadow:0 6px 0 var(--green-d);cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:transform .08s,box-shadow .08s}
 .k-btn:hover:not(:disabled){filter:brightness(1.08)}
 .k-btn:active:not(:disabled){transform:translateY(6px);box-shadow:0 0 0 transparent}
 .k-btn:disabled{opacity:.5;cursor:not-allowed}
 .k-btn.blue{background:var(--blue);box-shadow:0 6px 0 var(--blue-d)}
 .k-btn.white{background:#fff;color:#333;box-shadow:0 6px 0 #b9b9b9}
 .k-btn.gold{background:var(--yellow);box-shadow:0 6px 0 var(--yellow-d)}
-.k-btn.big{font-size:1.5em;padding:18px 44px}
 
 .panel{background:rgba(0,0,0,.24);border-radius:16px;padding:18px;margin:0 0 14px}
-select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-size:1em;font-family:inherit;font-weight:800;margin-bottom:8px;max-width:100%;color:#333}
-.row2{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+select,input[type=number]{padding:11px 14px;border:none;border-radius:8px;font-size:.95em;font-family:inherit;font-weight:800;margin-bottom:8px;max-width:100%;color:#333}
+.row2{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 .check{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;margin-top:6px;cursor:pointer}
 .check input{width:20px;height:20px;accent-color:#26890c}
 
@@ -92,18 +92,22 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
 #timer{width:80px;height:80px;flex:none;border-radius:50%;background:#fff;color:var(--purple);font-weight:900;font-size:2.3em;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(0,0,0,.25)}
 #timer.low{background:var(--red);color:#fff;animation:pulse .5s infinite alternate}
 @keyframes pulse{to{transform:scale(1.12)}}
-.anscount{flex:none;min-width:104px;background:rgba(0,0,0,.32);border-radius:30px;padding:12px 18px;font-weight:900;font-size:1.25em}
+.anscount{flex:none;min-width:104px;background:rgba(0,0,0,.32);border-radius:30px;padding:12px 18px;font-weight:900;font-size:1.15em}
 #q-text{background:#fff;color:#222;font-weight:900;font-size:clamp(1.25em,3.4vw,2em);line-height:1.35;padding:24px 26px;border-radius:14px;box-shadow:0 7px 0 rgba(0,0,0,.25);margin:0 0 16px}
+.demo-hint{margin:-6px 0 14px;font-weight:800;color:#ffe082;font-size:.95em}
 .kahoot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:640px){.kahoot-grid{grid-template-columns:1fr}}
-.k-opt{padding:18px 18px;min-height:96px;display:flex;align-items:center;gap:14px;color:#fff;font-weight:800;font-size:clamp(1em,2.2vw,1.35em);border-radius:10px;text-align:left;transition:opacity .35s,transform .35s;animation:pop .4s both}
+.k-opt{padding:18px 18px;min-height:96px;display:flex;align-items:center;gap:14px;color:#fff;font-weight:800;font-size:clamp(1em,2.2vw,1.35em);border-radius:10px;text-align:left;transition:opacity .35s,transform .2s,filter .15s;animation:pop .4s both}
+.k-opt.clickable{cursor:pointer}
+.k-opt.clickable:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.k-opt.clickable:active{transform:translateY(3px)}
 .k-shape{font-size:2em;line-height:1;min-width:44px;text-align:center;text-shadow:0 2px 0 rgba(0,0,0,.2)}
 .k-red{background:var(--red);box-shadow:0 7px 0 var(--red-d)}
 .k-blue{background:var(--blue);box-shadow:0 7px 0 var(--blue-d)}
 .k-yellow{background:var(--yellow);box-shadow:0 7px 0 var(--yellow-d)}
 .k-green{background:var(--green);box-shadow:0 7px 0 var(--green-d)}
-.opt-faded{opacity:.25;transform:scale(.97)}
-.opt-correct{outline:5px solid #fff;transform:scale(1.02)}
+.opt-faded{opacity:.25;transform:scale(.97);pointer-events:none}
+.opt-correct{outline:5px solid #fff;transform:scale(1.02);pointer-events:none}
 .evalrow{margin-top:18px;display:flex;justify-content:center}
 .answer-area{margin-top:18px;text-align:left}
 #answer-text{font-weight:900;background:#fff;color:var(--green);padding:14px 18px;border-radius:10px;margin:0 0 10px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
@@ -161,6 +165,7 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
   <button class="round hidden" id="btn-auto" title="Giro automático: activado">🔁</button>
   <button class="round hidden" id="btn-pause" title="Pausa">⏸</button>
   <button class="round hidden" id="btn-rank" title="Marcador">📊</button>
+  <button class="round danger hidden" id="btn-end" title="Terminar partida">🏁</button>
   <button class="round" id="btn-mute" title="Sonido">🔇</button>
 </div>
 
@@ -183,17 +188,26 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
 
       <div>
         <div class="panel">
+          <div style="margin-bottom:6px">
+            <p style="margin:0 0 6px;font-weight:900">Escenario / Tema</p>
+            <select id="topic" style="width:100%;max-width:380px">
+              <option value="all" selected>Todos (Temas 3, 4 y 5 · 57 preguntas)</option>
+              <option value="3">Tema 3 · Escenario sociocultural (20)</option>
+              <option value="4">Tema 4 · Escenario económico (20)</option>
+              <option value="5">Tema 5 · Escenario modificado (17)</option>
+            </select>
+          </div>
           <div class="row2">
             <div>
-              <p style="margin:0 0 8px;font-weight:900">Modo de juego</p>
+              <p style="margin:0 0 6px;font-weight:900">Modo de juego</p>
               <select id="mode">
-                <option value="marathon">Maratón (todas las preguntas)</option>
+                <option value="marathon">Maratón (todas)</option>
                 <option value="points">Carrera de puntos</option>
                 <option value="turns">Partida rápida</option>
               </select>
             </div>
             <div>
-              <p style="margin:0 0 8px;font-weight:900">Tiempo por pregunta</p>
+              <p style="margin:0 0 6px;font-weight:900">Tiempo por pregunta</p>
               <select id="qtime">
                 <option value="15">15 segundos</option>
                 <option value="20" selected>20 segundos</option>
@@ -214,6 +228,7 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
 
         <div>
           <button class="k-btn white" onclick="$('modal-inst').classList.remove('hidden')">📖 Instrucciones</button>
+          <button id="btn-demo" class="k-btn gold" title="Prueba el juego sin celulares">🧪 Modo prueba</button>
           <button id="btn-start" class="k-btn hidden">¡Comenzar!</button>
         </div>
       </div>
@@ -250,12 +265,12 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
   <div class="modal">
     <h2>📖 Instrucciones</h2>
     <ul style="font-size:1.05em;line-height:1.6;padding-left:20px;font-weight:700">
-      <li>Escanea el QR o abre el enlace en tu celular.</li>
-      <li>La ruleta gira y selecciona un bloque de los Temas 3, 4 o 5.</li>
-      <li>Responde en tu celular con la figura de color correcta. ¡Mientras más rápido, más puntos!</li>
+      <li>Escanea el QR o abre el enlace en tu celular (o usa <b>Modo prueba</b> para jugar desde esta pantalla).</li>
+      <li>Puedes filtrar las preguntas por escenario (Tema 3, 4, 5 o todos).</li>
+      <li>Responde con la figura de color correcta. ¡Mientras más rápido, más puntos!</li>
       <li>Si aciertas 3 o más seguidas, ganas bono de racha 🔥.</li>
       <li>Los eventos de sustentabilidad pueden sumar o restar puntos.</li>
-      <li>Cada 5 preguntas se muestra el marcador parcial.</li>
+      <li>Usa <b>🏁</b> arriba a la derecha si deseas terminar la partida antes y descargar el Excel.</li>
     </ul>
     <div style="text-align:center"><button class="k-btn" onclick="$('modal-inst').classList.add('hidden')">¡Entendido!</button></div>
   </div>
@@ -280,35 +295,45 @@ select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-s
 <script>
 "use strict";
 
-const SEGS = [
-  /* Tema 3 · Escenario sociocultural (0-4) */
-  {k:'soc',  e:'👥', n:'3.1–3.2 Sociedad y cultura',            t:'Tema 3 · Sociocultural', tc:'t3'},
-  {k:'idh',  e:'📈', n:'3.2.1–3.2.4 Desarrollo humano y social',t:'Tema 3 · Sociocultural', tc:'t3'},
-  {k:'des',  e:'🏜️', n:'3.3 Impacto humano y desertificación',  t:'Tema 3 · Sociocultural', tc:'t3'},
-  {k:'cli',  e:'🌡️', n:'3.4–3.5 Cambio climático y consumo',    t:'Tema 3 · Sociocultural', tc:'t3'},
-  {k:'pol',  e:'📜', n:'3.6 Estrategias y política ambiental',  t:'Tema 3 · Sociocultural', tc:'t3'},
-  /* Tema 4 · Escenario económico (5-9) */
-  {k:'eco',  e:'💼', n:'4.1–4.3 Economía y producción',         t:'Tema 4 · Económico',     tc:'t4'},
-  {k:'pib',  e:'📊', n:'4.4 Producto Interno Bruto (PIB)',      t:'Tema 4 · Económico',     tc:'t4'},
-  {k:'obs',  e:'🏭', n:'4.5–4.6 Costos y obsolescencia',        t:'Tema 4 · Económico',     tc:'t4'},
-  {k:'cir',  e:'🌳', n:'4.7–4.8 Servicios y economía circular', t:'Tema 4 · Económico',     tc:'t4'},
-  {k:'hue',  e:'👣', n:'4.8.1–4.8.3 Huella, ESR y desarrollo',  t:'Tema 4 · Económico',     tc:'t4'},
-  /* Tema 5 · Escenario modificado (10-14) */
-  {k:'dem',  e:'🌋', n:'5.1 Demografía, energía y fenómenos',   t:'Tema 5 · Modificado',    tc:'t5'},
-  {k:'est',  e:'⚖️', n:'5.2 Estado y Constitución',             t:'Tema 5 · Modificado',    tc:'t5'},
-  {k:'ins',  e:'🌾', n:'5.3–5.4 Inseguridad y desigualdad',     t:'Tema 5 · Modificado',    tc:'t5'},
-  {k:'pml',  e:'⚡', n:'5.5.1–5.5.2 Producción limpia y ecoef.',t:'Tema 5 · Modificado',    tc:'t5'},
-  {k:'pnd',  e:'🏛️', n:'5.5.3 Planes de desarrollo',            t:'Tema 5 · Modificado',    tc:'t5'},
-  /* Evento especial (15) */
-  {k:'evt',  e:'🎲', n:'Evento de sustentabilidad',             t:'Evento especial',        tc:'lvl'}
+const ALL_SEGS = [
+  /* Tema 3 · Escenario sociocultural (id 0-4) */
+  {id:0,  theme:3, k:'soc', e:'👥', n:'3.1–3.2 Sociedad y cultura',            t:'Tema 3 · Sociocultural', tc:'t3'},
+  {id:1,  theme:3, k:'idh', e:'📈', n:'3.2.1–3.2.4 Desarrollo humano y social',t:'Tema 3 · Sociocultural', tc:'t3'},
+  {id:2,  theme:3, k:'des', e:'🏜️', n:'3.3 Impacto humano y desertificación',  t:'Tema 3 · Sociocultural', tc:'t3'},
+  {id:3,  theme:3, k:'cli', e:'🌡️', n:'3.4–3.5 Cambio climático y consumo',    t:'Tema 3 · Sociocultural', tc:'t3'},
+  {id:4,  theme:3, k:'pol', e:'📜', n:'3.6 Estrategias y política ambiental',  t:'Tema 3 · Sociocultural', tc:'t3'},
+  /* Tema 4 · Escenario económico (id 5-9) */
+  {id:5,  theme:4, k:'eco', e:'💼', n:'4.1–4.3 Economía y producción',         t:'Tema 4 · Económico',     tc:'t4'},
+  {id:6,  theme:4, k:'pib', e:'📊', n:'4.4 Producto Interno Bruto (PIB)',      t:'Tema 4 · Económico',     tc:'t4'},
+  {id:7,  theme:4, k:'obs', e:'🏭', n:'4.5–4.6 Costos y obsolescencia',        t:'Tema 4 · Económico',     tc:'t4'},
+  {id:8,  theme:4, k:'cir', e:'🌳', n:'4.7–4.8 Servicios y economía circular', t:'Tema 4 · Económico',     tc:'t4'},
+  {id:9,  theme:4, k:'hue', e:'👣', n:'4.8.1–4.8.3 Huella, ESR y desarrollo',  t:'Tema 4 · Económico',     tc:'t4'},
+  /* Tema 5 · Escenario modificado (id 10-14) */
+  {id:10, theme:5, k:'dem', e:'🌋', n:'5.1 Demografía, energía y fenómenos',   t:'Tema 5 · Modificado',    tc:'t5'},
+  {id:11, theme:5, k:'est', e:'⚖️', n:'5.2 Estado y Constitución',             t:'Tema 5 · Modificado',    tc:'t5'},
+  {id:12, theme:5, k:'ins', e:'🌾', n:'5.3–5.4 Inseguridad y desigualdad',     t:'Tema 5 · Modificado',    tc:'t5'},
+  {id:13, theme:5, k:'pml', e:'⚡', n:'5.5.1–5.5.2 Producción limpia y ecoef.',t:'Tema 5 · Modificado',    tc:'t5'},
+  {id:14, theme:5, k:'pnd', e:'🏛️', n:'5.5.3 Planes de desarrollo',            t:'Tema 5 · Modificado',    tc:'t5'},
+  /* Evento especial (id 15) */
+  {id:15, theme:0, k:'evt', e:'🎲', n:'Evento de sustentabilidad',             t:'Evento especial',        tc:'lvl'}
 ];
-const EVT = SEGS.length - 1;
+const TOPIC_LABELS = {
+  all: 'Temas 3, 4 y 5 · Escenarios Sociocultural, Económico y Modificado',
+  '3': 'Tema 3 · Escenario sociocultural',
+  '4': 'Tema 4 · Escenario económico',
+  '5': 'Tema 5 · Escenario modificado'
+};
+let SEGS = [...ALL_SEGS];
+const evtIdx = () => SEGS.length - 1;
+const segAng = () => 360 / SEGS.length;
+const center = i => i * segAng() + segAng() / 2;
+
 const COLORS = ['#2ecc71','#3498db','#f1c40f','#e67e22','#9b59b6','#e74c3c','#1abc9c','#fd79a8'];
 const LVL = {C:['Concepto',1], D:['Dato / Análisis',2], A:['Aplicación',3]};
 const SHAPES = [['k-red','▲'],['k-blue','◆'],['k-yellow','●'],['k-green','■']];
 const SHAPE_COLORS = ['#e21b3c','#1368ce','#d89e00','#26890c'];
 
-/* Formato: [segmento(0-14), subtema, nivel(C|D|A), "pregunta", [optA, optB, optC, optD], idxCorrecto(0-3), "explicación"] */
+/* Formato: [segId(0-14), subtema, nivel(C|D|A), "pregunta", [optA, optB, optC, optD], idxCorrecto(0-3), "explicación"] */
 const Q = [
  /* ================= TEMA 3. ESCENARIO SOCIOCULTURAL (1-20) ================= */
  [0,'3.1 Sociedad y organización social','C',
@@ -754,13 +779,11 @@ const EVENTS = [
 ];
 
 const AVATARS = ['🦊','🐸','🦉','🐢','🦋','🐝','🐋','🦅','🦌','🦦'];
-const SEG_ANG = 360 / SEGS.length;
-const center = i => i * SEG_ANG + SEG_ANG / 2;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-/* ============ SONIDO (Web Audio, sin archivos: funciona sin internet) ============ */
+/* ============ SONIDO (Web Audio) ============ */
 let isMuted = true, AC = null, musicTimer = null, musicStep = 0, musicMode = 'lobby';
 function ac() {
   if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
@@ -818,28 +841,46 @@ $('btn-mute').onclick = toggleMute;
   }
 })();
 
-/* ============ RULETA ============ */
-(function buildWheel() {
-  const w = $('wheel'), stops = SEGS.map((s, i) => `${COLORS[i % COLORS.length]} ${i * SEG_ANG}deg ${(i + 1) * SEG_ANG}deg`);
+/* ============ RULETA DINÁMICA ============ */
+function buildWheel() {
+  const w = $('wheel');
+  const ang = segAng();
+  w.innerHTML = '';
+  w.style.transition = 'none';
+  w.style.transform = 'rotate(0deg)';
+  const stops = SEGS.map((s, i) => `${COLORS[i % COLORS.length]} ${i * ang}deg ${(i + 1) * ang}deg`);
   w.style.background = `conic-gradient(${stops.join(',')})`;
-  w.style.transitionDuration = '4200ms';
   SEGS.forEach((s, i) => {
     const d = document.createElement('div'); d.className = 'seg-label';
-    d.style.transform = `rotate(${center(i)}deg) translateY(calc(var(--wheel) * -0.35))`;
+    d.style.transform = `rotate(${center(i)}deg) translateY(calc(var(--wheel) * -0.34))`;
     d.innerHTML = `<span>${s.e}</span>`; w.appendChild(d);
   });
-})();
+  void w.offsetWidth;
+  w.style.transition = 'transform 4200ms cubic-bezier(.15,.85,.15,1)';
+}
 
 /* ============ LÓGICA ============ */
-const G = { players: [], rot: 0, turns: 0, qCount: 0, mode: 'marathon', target: 1000, queues: [], item: null, seg: 0,
-  busy: false, resolving: false, started: false, correctIndex: 0, curAns: '', curWhy: '', finalRank: [],
-  qActive: false, curPts: 1, secs: 20, deadline: 0, tInt: null, lastQ: false, partialAt: 0,
+const G = { players: [], rot: 0, turns: 0, qCount: 0, totalQ: Q.length, topic: 'all', mode: 'marathon', target: 1000,
+  queues: [], item: null, seg: 0, busy: false, resolving: false, started: false, correctIndex: 0, curAns: '', curWhy: '',
+  finalRank: [], qActive: false, curPts: 1, secs: 20, qStart: 0, deadline: 0, tInt: null, lastQ: false, partialAt: 0,
   paused: false, pausedAt: 0, pendingDecide: false, pendingSpin: false, lastLeft: -1,
-  autoSpin: true, spinT: null };
+  autoSpin: true, spinT: null, landT: null, decideT: null,
+  demo: false, demoPlayer: null, demoPick: null };
 let currentAnswersObj = {};
 
-function newQueues() { G.queues = SEGS.map(() => []); shuffle(Q).forEach(q => G.queues[q[0]].push(q)); G.queues[EVT] = shuffle(EVENTS); }
-const questionsLeft = () => G.queues.slice(0, EVT).reduce((a, q) => a + q.length, 0);
+function newQueues() {
+  SEGS = ALL_SEGS.filter(s => G.topic === 'all' || s.theme === 0 || String(s.theme) === G.topic);
+  G.rot = 0;
+  buildWheel();
+  G.queues = SEGS.map(() => []);
+  shuffle(Q).forEach(q => {
+    const idx = SEGS.findIndex(s => s.id === q[0]);
+    if (idx >= 0) G.queues[idx].push(q);
+  });
+  G.queues[evtIdx()] = shuffle(EVENTS);
+  G.totalQ = questionsLeft();
+}
+const questionsLeft = () => G.queues.slice(0, evtIdx()).reduce((a, q) => a + q.length, 0);
 
 function makeOptions(item) {
   const rawOpts = item[4];
@@ -852,23 +893,24 @@ function updateMode() {
   G.mode = $('mode').value;
   const wrap = $('target-wrap');
   if (G.mode === 'points') { wrap.classList.remove('hidden'); $('target-label').textContent = 'Puntos meta:'; $('target').value = 1000; }
-  else if (G.mode === 'turns') { wrap.classList.remove('hidden'); $('target-label').textContent = 'Giros límite:'; $('target').value = 20; }
+  else if (G.mode === 'turns') { wrap.classList.remove('hidden'); $('target-label').textContent = 'Giros límite:'; $('target').value = 15; }
   else wrap.classList.add('hidden');
 }
 $('mode').onchange = updateMode; updateMode();
 
 function updateHud() {
-  $('hud-q').textContent = `📋 ${G.qCount} / ${Q.length}`;
-  $('hud-p').textContent = `👥 ${G.players.length}`;
+  $('hud-q').textContent = `📋 ${G.qCount} / ${G.totalQ}`;
+  $('hud-p').textContent = G.demo ? `🧪 Demo · ${G.demoPlayer.score} pts` : `👥 ${G.players.length}`;
 }
 
 /* ============ TEMPORIZADOR ============ */
 function clearTimer() { clearInterval(G.tInt); G.tInt = null; }
 function startTimer(secs, onEnd) {
   clearTimer();
-  G.deadline = Date.now() + secs * 1000; G.lastLeft = -1;
+  G.qStart = Date.now();
+  G.deadline = G.qStart + secs * 1000; G.lastLeft = -1;
   const tick = () => {
-    if (G.paused) return;
+    if (G.paused || !G.started) return;
     const left = Math.max(0, Math.ceil((G.deadline - Date.now()) / 1000));
     const t = $('timer');
     if (t) { t.textContent = left; t.classList.toggle('low', left <= 5); }
@@ -901,34 +943,40 @@ $('btn-auto').onclick = () => {
   else if (!G.autoSpin) { clearTimeout(G.spinT); if (!G.busy) $('turn').textContent = '¡Gira la ruleta!'; }
 };
 
-/* ============ PAUSA ============ */
+/* ============ PAUSA Y TERMINAR PARTIDA ============ */
 function pauseGame() {
   if (!G.started || G.paused) return;
   G.paused = true; G.pausedAt = Date.now();
-  socket.emit('pause_game');
+  if (!G.demo) socket.emit('pause_game');
   stopMusic();
   $('modal-pause').classList.remove('hidden');
 }
 function resumeGame() {
   if (!G.paused) return;
-  G.deadline += Date.now() - G.pausedAt;
+  const diff = Date.now() - G.pausedAt;
+  G.qStart += diff;
+  G.deadline += diff;
   G.paused = false;
-  socket.emit('resume_game');
+  if (!G.demo) socket.emit('resume_game');
   $('modal-pause').classList.add('hidden');
   startMusic();
   if (G.pendingDecide) { G.pendingDecide = false; decide(); return; }
   if (G.pendingSpin) { G.pendingSpin = false; spin(); return; }
   const c = $('ans-counter');
-  if (G.qActive && c) {
+  if (!G.demo && G.qActive && c) {
     const [a, b] = c.textContent.split('/').map(x => parseInt(x, 10));
     if (b > 0 && a >= b) setTimeout(finishQuestion, 500);
   }
 }
 $('btn-pause').onclick = pauseGame;
 $('btn-resume').onclick = resumeGame;
+$('btn-end').onclick = () => {
+  if (!G.started) return;
+  if (confirm('¿Terminar la partida ahora y mostrar el podio?')) endGame();
+};
 
-/* ============ SOCKET.IO + QR local ============ */
-const socket = io({ transports: ['websocket'], reconnectionDelay: 200, reconnectionDelayMax: 1000 });
+/* ============ SOCKET.IO + QR local (con respaldo polling) ============ */
+const socket = io({ transports: ['websocket', 'polling'], reconnectionDelay: 200, reconnectionDelayMax: 1000 });
 let serverPlayersList = [], firstConnect = true;
 
 socket.on('connect', () => { socket.emit('host_join', firstConnect); firstConnect = false; });
@@ -938,14 +986,15 @@ function loadQR() {
     .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
     .then(svg => { $('qrcode').innerHTML = svg; })
     .catch(() => {
-      $('qrbox').innerHTML = '<div class="qrfail">QR no disponible<small>Instala el paquete con <b>npm install qrcode</b> y reinicia el servidor. Mientras tanto, escribe la dirección de arriba en el celular.</small></div>';
+      $('qrbox').innerHTML = '<div class="qrfail">QR no disponible<small>Escribe la dirección de arriba en el celular o usa el botón Modo prueba.</small></div>';
     });
 }
 loadQR();
 fetch('/info').then(r => r.json()).then(d => { $('join-url').textContent = d.url; })
-  .catch(() => { $('join-url').textContent = 'http://IP-de-esta-laptop:3000/mando.html'; });
+  .catch(() => { $('join-url').textContent = window.location.origin + '/mando.html'; });
 
 window.kickPlayer = function (id) {
+  if (G.demo) return;
   if (!confirm('¿Expulsar a este jugador?')) return;
   socket.emit('kick_player', id);
   const r = document.getElementById('rr-' + id); if (r) r.remove();
@@ -954,10 +1003,10 @@ window.kickPlayer = function (id) {
 socket.on('update_players', list => {
   serverPlayersList = list;
   $('names').innerHTML = `<h3 style="margin:0 0 10px">Jugadores listos (${list.length})</h3>` +
-    (list.length ? list.map(sp => `<span class="chip">${sp.online === false ? '⚠️' : '✅'} ${esc(sp.name)}<button class="kick" title="Expulsar" onclick="kickPlayer('${esc(sp.id)}')">✕</button></span>`).join('') : '<p style="opacity:.8;margin:0;font-weight:700">Escanea el QR para unirte</p>');
+    (list.length ? list.map(sp => `<span class="chip">${sp.online === false ? '⚠️' : '✅'} ${esc(sp.name)}<button class="kick" title="Expulsar" onclick="kickPlayer('${esc(sp.id)}')">✕</button></span>`).join('') : '<p style="opacity:.8;margin:0;font-weight:700">Escanea el QR o usa Modo prueba</p>');
   $('btn-start').classList.toggle('hidden', !list.length || G.started);
 
-  if (G.started) {
+  if (G.started && !G.demo) {
     G.players = G.players.filter(p => list.some(sp => sp.id === p.id));
     list.forEach(sp => {
       const ex = G.players.find(p => p.id === sp.id);
@@ -969,6 +1018,7 @@ socket.on('update_players', list => {
 });
 
 socket.on('answer_update', (count, total, answersObj) => {
+  if (G.demo) return;
   currentAnswersObj = answersObj;
   const c = $('ans-counter');
   if (c) { c.innerText = count + ' / ' + total; c.style.color = count === total && count > 0 ? '#7CFC00' : ''; }
@@ -978,6 +1028,11 @@ socket.on('answer_update', (count, total, answersObj) => {
 });
 
 function getRank(cb) {
+  if (G.demo) {
+    const p = G.demoPlayer;
+    cb([{ id: p.id, name: p.name, score: p.score, ok: p.ok, ko: p.ko, rank: 1 }]);
+    return;
+  }
   let done = false;
   const t = setTimeout(() => { if (!done) { done = true; cb(null); } }, 2000);
   socket.emit('get_ranking', r => { if (!done) { done = true; clearTimeout(t); cb(r); } });
@@ -990,7 +1045,7 @@ function showPartial(rank, onClose) {
   const max = Math.max(1, ...rank.map(p => p.score));
   const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
   $('rank-list').innerHTML = rank.slice(0, 8).map((p, i) =>
-    `<div class="rrow" id="rr-${esc(p.id)}"><span class="rpos">${medal(i)}</span><span class="rname">${esc(p.name)}</span><div class="rbar"><i style="width:${Math.round(p.score / max * 100)}%"></i></div><b class="rsc">${p.score}</b><button class="kick" title="Expulsar" onclick="kickPlayer('${esc(p.id)}')">✕</button></div>`
+    `<div class="rrow" id="rr-${esc(p.id)}"><span class="rpos">${medal(i)}</span><span class="rname">${esc(p.name)}</span><div class="rbar"><i style="width:${Math.round(p.score / max * 100)}%"></i></div><b class="rsc">${p.score}</b>${G.demo ? '' : `<button class="kick" title="Expulsar" onclick="kickPlayer('${esc(p.id)}')">✕</button>`}</div>`
   ).join('') || '<p style="text-align:center">Sin jugadores</p>';
   $('modal-rank').classList.remove('hidden');
 }
@@ -1000,14 +1055,22 @@ $('rank-close').onclick = () => {
 };
 $('btn-rank').onclick = () => getRank(r => { if (r) showPartial(r, null); });
 
-/* ============ INICIO ============ */
-function startGame() {
-  if (!serverPlayersList.length) return;
-  const needTarget = G.mode !== 'marathon'; const target = parseInt($('target').value, 10);
-  if (needTarget && !(target >= 1)) return; G.target = needTarget ? Math.min(target, 100000) : 0;
+/* ============ INICIO (NORMAL Y MODO PRUEBA) ============ */
+function readConfig() {
+  const needTarget = G.mode !== 'marathon';
+  const target = parseInt($('target').value, 10);
+  if (needTarget && !(target >= 1)) return false;
+  G.target = needTarget ? Math.min(target, 100000) : 0;
   G.secs = parseInt($('qtime').value, 10) || 20;
   G.autoSpin = $('autospin').checked;
+  G.topic = $('topic').value || 'all';
+  return true;
+}
 
+function startGame() {
+  if (!serverPlayersList.length || !readConfig()) return;
+  G.demo = false;
+  G.demoPlayer = null;
   const av = shuffle(AVATARS);
   G.players = serverPlayersList.map((sp, k) => ({ id: sp.id, name: sp.name.trim(), avatar: av[k % av.length] }));
   socket.emit('start_game');
@@ -1015,16 +1078,29 @@ function startGame() {
   playSound('win');
   beginRound();
 }
+
+function startDemo() {
+  if (!readConfig()) return;
+  G.demo = true;
+  G.demoPlayer = { id: 'demo', name: 'Modo Prueba', avatar: '🧪', score: 0, ok: 0, ko: 0, streak: 0 };
+  G.players = [G.demoPlayer];
+  if (isMuted) toggleMute(); else ac();
+  playSound('win');
+  beginRound();
+}
+
 $('btn-start').onclick = startGame;
+$('btn-demo').onclick = startDemo;
 
 function beginRound() {
-  clearTimeout(G.spinT);
+  clearTimeout(G.spinT); clearTimeout(G.landT); clearTimeout(G.decideT);
   G.turns = 0; G.qCount = 0; G.item = null; G.busy = false; G.resolving = false; G.started = true; G.finalRank = [];
-  G.qActive = false; G.lastQ = false; G.partialAt = 0; G.paused = false; G.pendingDecide = false; G.pendingSpin = false; clearTimer();
+  G.qActive = false; G.lastQ = false; G.partialAt = 0; G.paused = false; G.pendingDecide = false; G.pendingSpin = false;
+  G.demoPick = null; clearTimer();
   newQueues();
   ['setup', 'end'].forEach(id => $(id).classList.add('hidden'));
   $('game').classList.remove('hidden'); $('game').classList.add('pop'); $('spin').disabled = false;
-  ['btn-rank', 'btn-pause', 'btn-auto', 'hud'].forEach(id => $(id).classList.remove('hidden'));
+  ['btn-rank', 'btn-pause', 'btn-auto', 'btn-end', 'hud'].forEach(id => $(id).classList.remove('hidden'));
   $('btn-auto').classList.toggle('off', !G.autoSpin);
   showWheel(); $('landed').innerHTML = '';
   $('turn').textContent = G.autoSpin ? '¡Prepárense, la ruleta va a girar!' : '¡Gira la ruleta!';
@@ -1043,32 +1119,41 @@ function spin() {
 
   const avail = G.queues.map((q, i) => q.length ? i : -1).filter(i => i >= 0);
   G.seg = avail[Math.random() * avail.length | 0];
-  const jitter = (Math.random() - .5) * SEG_ANG * .6;
+  const jitter = (Math.random() - .5) * segAng() * .6;
   const base = ((360 - center(G.seg) + jitter) % 360 + 360) % 360;
   G.rot += (4 + (Math.random() * 4 | 0)) * 360 + ((base - (G.rot % 360)) + 360) % 360;
   $('wheel').style.transform = `rotate(${G.rot}deg)`;
 
-  for (let k = 1; k <= 30; k++) setTimeout(() => { if (!G.paused) playSound('tick'); }, 4200 * (1 - Math.pow(1 - k / 30, 2)) * .97);
-  setTimeout(landing, 4350);
+  for (let k = 1; k <= 30; k++) setTimeout(() => { if (G.started && !G.paused) playSound('tick'); }, 4200 * (1 - Math.pow(1 - k / 30, 2)) * .97);
+  G.landT = setTimeout(landing, 4350);
 }
 $('spin').onclick = spin;
 
 function landing() {
+  if (!G.started) return;
   const s = SEGS[G.seg];
   $('turn').textContent = '¡Cayó en!';
   $('landed').innerHTML = `<span class="lp"><span class="lp-e">${s.e}</span>${esc(s.n)}</span>`;
   playSound('land');
-  setTimeout(decide, 1300);
+  G.decideT = setTimeout(decide, 1300);
 }
 
+window.demoPick = function (i) {
+  if (!G.demo || !G.qActive || G.resolving || G.paused) return;
+  G.demoPick = i;
+  const c = $('ans-counter'); if (c) { c.innerText = '1 / 1'; c.style.color = '#7CFC00'; }
+  finishQuestion();
+};
+
 function decide() {
+  if (!G.started) return;
   if (G.paused) { G.pendingDecide = true; return; }
-  G.turns++; G.item = G.queues[G.seg].pop(); G.resolving = false; currentAnswersObj = {};
+  G.turns++; G.item = G.queues[G.seg].pop(); G.resolving = false; currentAnswersObj = {}; G.demoPick = null;
   const s = SEGS[G.seg];
   $('wheel-stage').classList.add('hidden');
   const qa = $('qarea'); qa.innerHTML = ''; qa.classList.remove('hidden'); qa.classList.remove('pop'); void qa.offsetWidth; qa.classList.add('pop');
 
-  if (G.seg === EVT) {
+  if (G.seg === evtIdx()) {
     G.lastQ = false;
     playSound('event');
     qa.innerHTML = `<div class="panel" style="max-width:720px;margin:0 auto"><p class="evt-title">¡Evento de sustentabilidad! 🌿</p><p class="evt-text">${esc(G.item[0])}</p>
@@ -1094,11 +1179,12 @@ function decide() {
           <span class="tag seg">${s.e} ${esc(subtema)}</span>
           <span class="tag lvl">${name}</span>
         </div>
-        <div class="anscount">👥 <span id="ans-counter">0 / ${G.players.length}</span></div>
+        <div class="anscount">${G.demo ? '🧪 ' : '👥 '}<span id="ans-counter">0 / ${G.players.length}</span></div>
       </div>
       <p id="q-text">${esc(q)}</p>
+      ${G.demo ? '<p class="demo-hint">Modo prueba: haz clic directamente en la respuesta correcta 👇</p>' : ''}
       <div class="kahoot-grid" id="k-grid">
-        ${opts.map((o, i) => `<div class="k-opt ${SHAPES[i][0]}" id="opt-${i}" style="animation-delay:${i * .07}s"><span class="k-shape">${SHAPES[i][1]}</span><span>${esc(o)}</span></div>`).join('')}
+        ${opts.map((o, i) => `<div class="k-opt ${SHAPES[i][0]}${G.demo ? ' clickable' : ''}" id="opt-${i}" style="animation-delay:${i * .07}s"${G.demo ? ` onclick="demoPick(${i})"` : ''}><span class="k-shape">${SHAPES[i][1]}</span><span>${esc(o)}</span></div>`).join('')}
       </div>
       <div class="evalrow" id="eval-box"><button class="k-btn blue" onclick="finishQuestion()">Evaluar ya 👁️</button></div>
       <div id="answer-area" class="answer-area hidden">
@@ -1111,7 +1197,7 @@ function decide() {
       </div>`;
     G.qActive = true;
     startMusic('question');
-    socket.emit('question_ready', G.secs);
+    if (!G.demo) socket.emit('question_ready', G.secs);
     startTimer(G.secs, finishQuestion);
   }
 }
@@ -1125,6 +1211,13 @@ window.aplicarEvento = function () {
     r.innerHTML = names && names.length ? `Afectados: <b>${names.map(esc).join(', ')}</b>` : 'Nadie fue afectado';
     r.classList.remove('hidden'); $('evt-go').classList.remove('hidden');
   };
+  if (G.demo) {
+    G.demoPlayer.score = Math.max(0, G.demoPlayer.score + delta);
+    updateHud();
+    showDone([`${G.demoPlayer.name} (${delta >= 0 ? '+' : ''}${delta} pts)`]);
+    playSound(delta >= 0 ? 'win' : 'lose');
+    return;
+  }
   let answered = false;
   const fb = setTimeout(() => { if (!answered) { answered = true; showDone([]); } }, 2000);
   socket.emit('apply_event', target, delta, text, res => {
@@ -1156,6 +1249,35 @@ window.revelarYAsignarPuntos = function (pts) {
   $('why-text').textContent = 'Fundamentación: ' + G.curWhy;
   startMusic('lobby');
 
+  if (G.demo) {
+    const p = G.demoPlayer;
+    const pick = G.demoPick;
+    const counts = [0, 0, 0, 0];
+    if (Number.isInteger(pick)) counts[pick] = 1;
+    drawChart(counts, ci);
+
+    if (pick === ci) {
+      const qDur = G.secs * 1000;
+      const elapsed = Math.min(Date.now() - G.qStart, qDur);
+      let g = Math.round(pts * 100 * (1 - 0.5 * (elapsed / qDur)));
+      p.streak = (p.streak || 0) + 1;
+      const bonus = p.streak >= 3 ? Math.min(5, p.streak - 2) * 50 : 0;
+      g += bonus;
+      p.score += g; p.ok++;
+      $('stat-text').textContent = `¡Correcto! Ganaste +${g} puntos (Total: ${p.score} pts)`;
+      $('streak-text').textContent = p.streak >= 3 ? `🔥 Racha de ${p.streak} (+${bonus} pts de bono)` : '';
+      playSound('win');
+    } else {
+      p.streak = 0;
+      if (pick !== null) p.ko++;
+      $('stat-text').textContent = pick === null ? 'Sin respuesta (tiempo fuera)' : 'Respuesta incorrecta';
+      $('streak-text').textContent = '';
+      playSound('lose');
+    }
+    updateHud();
+    return;
+  }
+
   socket.emit('close_answers');
   socket.emit('send_results', ci, pts, G.curAns, res => {
     const ans = (res && res.answers) || currentAnswersObj;
@@ -1173,7 +1295,7 @@ window.revelarYAsignarPuntos = function (pts) {
 function advance() {
   if (!G.busy || G.paused) return; G.busy = false;
   clearTimer(); G.qActive = false;
-  socket.emit('back_to_waiting');
+  if (!G.demo) socket.emit('back_to_waiting');
 
   const next = () => {
     $('qarea').classList.add('hidden');
@@ -1200,17 +1322,19 @@ function advance() {
 
 function endGame() {
   if (!G.started) return;
-  clearTimer(); clearTimeout(G.spinT); G.paused = false; $('modal-pause').classList.add('hidden');
-  socket.emit('end_game');
+  clearTimer(); clearTimeout(G.spinT); clearTimeout(G.landT); clearTimeout(G.decideT);
+  G.started = false; G.busy = false; G.qActive = false; G.paused = false;
+  $('modal-pause').classList.add('hidden');
+  if (!G.demo) socket.emit('end_game');
+
   getRank(rank => {
     if (!rank) {
-      alert('El servidor no respondió con el ranking. Reinicia el servidor (Ctrl+C y node server.js).');
+      alert('El servidor no respondió con el ranking.');
       rank = G.finalRank || [];
     }
     G.finalRank = rank;
-    G.started = false;
     stopMusic();
-    ['btn-rank', 'btn-pause', 'btn-auto', 'hud'].forEach(id => $(id).classList.add('hidden'));
+    ['btn-rank', 'btn-pause', 'btn-auto', 'btn-end', 'hud'].forEach(id => $(id).classList.add('hidden'));
     $('modal-rank').classList.add('hidden');
     $('game').classList.add('hidden'); $('end').classList.remove('hidden');
     playSound('win');
@@ -1233,6 +1357,7 @@ window.exportToExcel = function () {
   const rank = G.finalRank || [];
   const n = G.qCount || 0;
   const fecha = new Date().toLocaleString('es-MX');
+  const topicTxt = TOPIC_LABELS[G.topic] || TOPIC_LABELS.all;
   const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
 
   const rows = rank.map((p, i) => {
@@ -1258,7 +1383,7 @@ window.exportToExcel = function () {
 <body>
 <table>
   <tr><td colspan="6" style="background:#46178F;color:#FFFFFF;font-size:18pt;font-weight:bold;text-align:center;height:40px">RULETA SUSTENTABLE · Reporte de resultados</td></tr>
-  <tr><td colspan="6" style="text-align:center;color:#555">Temas 3, 4 y 5 · Escenarios Sociocultural, Económico y Modificado &nbsp;|&nbsp; Fecha: ${esc(fecha)} &nbsp;|&nbsp; Preguntas jugadas: ${n} &nbsp;|&nbsp; Jugadores: ${rank.length}</td></tr>
+  <tr><td colspan="6" style="text-align:center;color:#555">${esc(topicTxt)} &nbsp;|&nbsp; Fecha: ${esc(fecha)} &nbsp;|&nbsp; Preguntas jugadas: ${n} &nbsp;|&nbsp; Jugadores: ${rank.length}</td></tr>
   <tr><td colspan="6"></td></tr>
   <tr><th style="${th}">Posición</th><th style="${th}">Jugador</th><th style="${th}">Puntos</th><th style="${th}">Correctas</th><th style="${th}">Incorrectas</th><th style="${th}">% de Acierto</th></tr>
   ${rows}
@@ -1273,6 +1398,7 @@ window.exportToExcel = function () {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
+buildWheel();
 $('btn-new').onclick = () => window.location.reload();
 </script>
 </body>

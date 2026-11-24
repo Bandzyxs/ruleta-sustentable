@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mando · Ruleta Ambiental</title>
+<title>Mando · Ruleta Sustentable</title>
 <script src="/socket.io/socket.io.js"></script>
 <style>
   @font-face{font-family:'Montserrat';font-weight:600;font-display:swap;src:url('/fonts/montserrat-latin-600-normal.woff2') format('woff2')}
@@ -89,7 +89,7 @@
   <div id="tbar" class="hidden"><div id="tfill"></div></div>
 
   <div id="login-screen" class="card">
-    <h2 class="logo">Ruleta Ambiental</h2>
+    <h2 class="logo">Ruleta Sustentable</h2>
     <input type="text" id="playerName" placeholder="Tu apodo" maxlength="15" autocomplete="off">
     <button class="go" id="btn-join">¡Entrar!</button>
   </div>
@@ -157,7 +157,7 @@ const SCREENS = ['login-screen', 'waiting-screen', 'options-screen', 'result-scr
 const show = id => { SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id)); if (id !== 'options-screen') stopTimer(); };
 function wait(msg, sub) { document.body.className = ''; $('wait-msg').textContent = msg; $('wait-sub').textContent = sub; show('waiting-screen'); }
 
-const socket = io({ transports: ['websocket'], reconnectionDelay: 200, reconnectionDelayMax: 1000, timeout: 4000 });
+const socket = io({ transports: ['websocket', 'polling'], reconnectionDelay: 200, reconnectionDelayMax: 1000, timeout: 4000 });
 let myName = null, answered = false, kicked = false, isPaused = false;
 
 const join = () => { if (myName && !kicked) socket.emit('join_game', pid, myName); };
@@ -324,7 +324,7 @@ socket.on('game_over', p => {
   show('result-screen');
 });
 
-/* ---- Evento ambiental ---- */
+/* ---- Evento de sustentabilidad ---- */
 let evTimer = null;
 socket.on('event_hit', e => {
   const good = e.delta >= 0;

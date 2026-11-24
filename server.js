@@ -11,7 +11,7 @@ app.set('trust proxy', 1);
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  transports: ['websocket'],
+  transports: ['websocket', 'polling'],
   perMessageDeflate: false,
   pingInterval: 8000,
   pingTimeout: 6000
@@ -62,7 +62,6 @@ app.get('/qr.svg', (req, res) => {
 });
 
 /* ===== Estado ===== */
-// pid -> { id, name, sid, timer, score, ok, ko, streak }
 const players = new Map();
 const banned = new Set();
 let hostSid = null;
@@ -109,7 +108,6 @@ function resetScores() {
   for (const p of players.values()) { p.score = 0; p.ok = 0; p.ko = 0; p.streak = 0; }
 }
 
-/* Tiempo restante (se congela mientras el juego está en pausa) */
 const remainingMs = () => Math.max(0, qStart + qDur - (paused && pausedAt ? pausedAt : Date.now()));
 const liveQuestion = () => phase === 'question' && (accepting || (paused && pauseWasAccepting));
 
@@ -155,7 +153,6 @@ io.on('connection', socket => {
     io.to('players').emit('time_up');
   });
 
-  /* Pausa / reanudar */
   socket.on('pause_game', () => {
     if (!isHost() || paused) return;
     paused = true; pausedAt = Date.now();
@@ -174,7 +171,6 @@ io.on('connection', socket => {
     io.to('players').emit('resumed', { phase, duration: qDur, remaining: accepting ? remainingMs() : 0 });
   });
 
-  // c = índice correcto, pts = puntos base, text = texto de la respuesta correcta
   socket.on('send_results', (c, pts, text, ack) => {
     if (typeof text === 'function') { ack = text; text = ''; }
     const ok = isHost() && phase === 'question';
