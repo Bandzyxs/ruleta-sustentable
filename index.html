@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruleta Sustentable · Temas 3, 4 y 5</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/vendor/confetti.js" defer></script>
+<style>
+@font-face{font-family:'Montserrat';font-weight:600;font-display:swap;src:url('/fonts/montserrat-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:700;font-display:swap;src:url('/fonts/montserrat-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:800;font-display:swap;src:url('/fonts/montserrat-latin-800-normal.woff2') format('woff2')}
+@font-face{font-family:'Montserrat';font-weight:900;font-display:swap;src:url('/fonts/montserrat-latin-900-normal.woff2') format('woff2')}
+:root{
+  --purple:#46178f; --purple-d:#33106b; --purple-l:#5b2bb0;
+  --red:#e21b3c; --red-d:#a8112b; --blue:#1368ce; --blue-d:#0d4a96;
+  --yellow:#d89e00; --yellow-d:#9c7300; --green:#26890c; --green-d:#1a6208;
+  --wheel:min(440px,82vw,56vh);
+}
+*{box-sizing:border-box}
+body{margin:0;padding:64px 12px 24px;min-height:100vh;background:radial-gradient(circle at 20% 10%,#6a2fc4 0,transparent 45%),radial-gradient(circle at 85% 90%,#2b0c5c 0,transparent 50%),var(--purple);background-attachment:fixed;font-family:'Montserrat',system-ui,sans-serif;color:#fff;text-align:center;display:flex;justify-content:center;align-items:center;overflow-x:hidden}
+.hidden{display:none!important}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.leaf{position:absolute;top:-10%;animation:fall linear infinite;opacity:.22}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:0}10%,90%{opacity:.5}100%{transform:translateY(110vh) rotate(720deg) translateX(100px);opacity:0}}
+.container{position:relative;z-index:10;width:100%;max-width:1100px}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(18px)}to{opacity:1;transform:none}}
+.pop{animation:pop .45s cubic-bezier(.2,1.3,.4,1) both}
+h1{font-weight:900;font-size:clamp(2em,6vw,3.4em);margin:0 0 4px;letter-spacing:-1px;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.sub{margin:0 0 18px;font-weight:700;opacity:.85}
+
+/* Barra superior */
+.topbtns{position:fixed;top:14px;right:14px;z-index:100;display:flex;gap:10px}
+.round{width:50px;height:50px;border-radius:50%;background:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+.round:active{transform:translateY(4px);box-shadow:none}
+.round.off{opacity:.55;background:#ddd}
+#hud{position:fixed;top:14px;left:14px;z-index:100;display:flex;gap:10px;flex-wrap:wrap}
+.hud-pill{background:rgba(0,0,0,.35);backdrop-filter:blur(6px);padding:11px 16px;border-radius:30px;font-weight:900;font-size:.95em}
+
+/* Botones 3D */
+.k-btn{padding:14px 30px;margin:8px;border:none;border-radius:8px;font-family:inherit;font-weight:900;font-size:1.15em;color:#fff;background:var(--green);box-shadow:0 6px 0 var(--green-d);cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:transform .08s,box-shadow .08s}
+.k-btn:hover:not(:disabled){filter:brightness(1.08)}
+.k-btn:active:not(:disabled){transform:translateY(6px);box-shadow:0 0 0 transparent}
+.k-btn:disabled{opacity:.5;cursor:not-allowed}
+.k-btn.blue{background:var(--blue);box-shadow:0 6px 0 var(--blue-d)}
+.k-btn.white{background:#fff;color:#333;box-shadow:0 6px 0 #b9b9b9}
+.k-btn.gold{background:var(--yellow);box-shadow:0 6px 0 var(--yellow-d)}
+.k-btn.big{font-size:1.5em;padding:18px 44px}
+
+.panel{background:rgba(0,0,0,.24);border-radius:16px;padding:18px;margin:0 0 14px}
+select,input[type=number]{padding:12px 16px;border:none;border-radius:8px;font-size:1em;font-family:inherit;font-weight:800;margin-bottom:8px;max-width:100%;color:#333}
+.row2{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+.check{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;margin-top:6px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:#26890c}
+
+/* Lobby */
+.lobby-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;width:100%;text-align:center}
+@media (max-width:860px){.lobby-grid{grid-template-columns:1fr}}
+.join-box{background:#fff;color:#333;border-radius:16px;padding:16px 22px;box-shadow:0 8px 0 rgba(0,0,0,.25);margin:0 auto 14px;max-width:100%}
+.join-box .lbl{font-weight:800;font-size:.95em;color:#666;margin:0 0 4px}
+#join-url{font-weight:900;font-size:clamp(1.1em,3.2vw,1.7em);color:var(--purple);word-break:break-all;margin:0}
+#qrbox{background:#fff;padding:14px;border-radius:16px;display:inline-block;margin:0 auto 10px;box-shadow:0 8px 0 rgba(0,0,0,.25);line-height:0;color:#333}
+#qrcode svg{width:min(340px,70vw);height:min(340px,70vw);display:block}
+.qrfail{line-height:1.4;padding:24px;max-width:320px;font-weight:800;color:#c62828}
+.qrfail small{display:block;margin-top:8px;font-weight:700;color:#555}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--purple);padding:8px 10px 8px 18px;border-radius:30px;margin:5px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.25);animation:pop .35s both}
+.kick{width:28px;height:28px;border-radius:50%;border:none;background:#ffcdd2;color:#c62828;font-weight:900;font-size:.95em;cursor:pointer;line-height:1;flex:none}
+.kick:hover{background:#e53935;color:#fff}
+
+/* Ruleta */
+#wheel-stage{animation:pop .4s both}
+#turn{margin:0 0 6px;font-weight:900;font-size:clamp(1.3em,3.6vw,1.9em);text-shadow:0 3px 0 rgba(0,0,0,.25);min-height:1.3em}
+#wheel-wrap{position:relative;width:var(--wheel);height:var(--wheel);margin:38px auto 18px;filter:drop-shadow(0 14px 0 rgba(0,0,0,.2))}
+#wheel-wrap::before{content:'';position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,transparent 62%,rgba(255,255,255,.18) 63%,rgba(255,255,255,.05) 70%,transparent 71%);box-shadow:0 0 50px rgba(255,214,0,.25)}
+#wheel{width:100%;height:100%;border-radius:50%;border:12px solid #fff;position:relative;overflow:hidden;box-shadow:inset 0 0 40px rgba(0,0,0,.4);transition:transform 4.2s cubic-bezier(.15,.85,.15,1)}
+.seg-label{position:absolute;top:50%;left:50%;width:0;height:0}
+.seg-label span{position:absolute;transform:translate(-50%,-50%);font-size:calc(var(--wheel)*.075);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+#spin{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28%;height:28%;font-size:calc(var(--wheel)*.15);background:#fff;border:none;border-radius:50%;box-shadow:0 6px 0 #b9b9b9;z-index:20;cursor:pointer;line-height:1}
+#spin:active:not(:disabled){transform:translate(-50%,-44%);box-shadow:none}
+#spin:disabled{opacity:.75;cursor:default}
+#pointer{position:absolute;top:-32px;left:50%;transform:translateX(-50%);border-left:24px solid transparent;border-right:24px solid transparent;border-top:60px solid var(--red);z-index:10;filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))}
+#landed{min-height:3.2em;display:flex;justify-content:center;align-items:center}
+.lp{display:inline-flex;align-items:center;gap:12px;background:#fff;color:var(--purple);padding:10px 26px 10px 14px;border-radius:40px;font-weight:900;font-size:clamp(1.1em,3vw,1.6em);box-shadow:0 6px 0 rgba(0,0,0,.25);animation:pop .4s cubic-bezier(.2,1.6,.4,1) both}
+.lp-e{font-size:1.7em;line-height:1}
+
+/* Pregunta */
+.qbox{text-align:center;animation:pop .45s cubic-bezier(.2,1.3,.4,1) both}
+.qtop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.qtop .mid{flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.tag{font-weight:900;font-size:.78em;text-transform:uppercase;letter-spacing:1px;padding:6px 14px;border-radius:30px;background:var(--red)}
+.tag.seg{background:rgba(0,0,0,.35)}.tag.lvl{background:var(--blue)}.tag.t3{background:#8e44ad}.tag.t4{background:#d35400}.tag.t5{background:#16a085}
+#timer{width:80px;height:80px;flex:none;border-radius:50%;background:#fff;color:var(--purple);font-weight:900;font-size:2.3em;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+#timer.low{background:var(--red);color:#fff;animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.12)}}
+.anscount{flex:none;min-width:104px;background:rgba(0,0,0,.32);border-radius:30px;padding:12px 18px;font-weight:900;font-size:1.25em}
+#q-text{background:#fff;color:#222;font-weight:900;font-size:clamp(1.25em,3.4vw,2em);line-height:1.35;padding:24px 26px;border-radius:14px;box-shadow:0 7px 0 rgba(0,0,0,.25);margin:0 0 16px}
+.kahoot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.kahoot-grid{grid-template-columns:1fr}}
+.k-opt{padding:18px 18px;min-height:96px;display:flex;align-items:center;gap:14px;color:#fff;font-weight:800;font-size:clamp(1em,2.2vw,1.35em);border-radius:10px;text-align:left;transition:opacity .35s,transform .35s;animation:pop .4s both}
+.k-shape{font-size:2em;line-height:1;min-width:44px;text-align:center;text-shadow:0 2px 0 rgba(0,0,0,.2)}
+.k-red{background:var(--red);box-shadow:0 7px 0 var(--red-d)}
+.k-blue{background:var(--blue);box-shadow:0 7px 0 var(--blue-d)}
+.k-yellow{background:var(--yellow);box-shadow:0 7px 0 var(--yellow-d)}
+.k-green{background:var(--green);box-shadow:0 7px 0 var(--green-d)}
+.opt-faded{opacity:.25;transform:scale(.97)}
+.opt-correct{outline:5px solid #fff;transform:scale(1.02)}
+.evalrow{margin-top:18px;display:flex;justify-content:center}
+.answer-area{margin-top:18px;text-align:left}
+#answer-text{font-weight:900;background:#fff;color:var(--green);padding:14px 18px;border-radius:10px;margin:0 0 10px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+#why-text{font-weight:700;opacity:.95;margin:0 0 6px}
+#stat-text{font-weight:800;color:#ffe082;margin:0 0 4px}
+#streak-text{font-weight:800;color:#ffb74d;margin:0 0 6px}
+.evt-title{font-size:1.9em;font-weight:900;color:#ffe082;margin:0 0 8px}
+.evt-text{font-size:1.5em;font-weight:800;margin:0 0 14px}
+#evt-result{font-size:1.2em;font-weight:800;margin:10px 0}
+
+/* Gráfica de respuestas */
+.chart{display:flex;align-items:flex-end;justify-content:center;gap:16px;height:170px;margin:10px 0 16px;background:rgba(0,0,0,.2);border-radius:14px;padding:12px 12px 0}
+.cbar{width:min(86px,20vw);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.cbar .n{font-weight:900;font-size:1.3em;margin-bottom:2px}
+.cbar .fill{width:100%;border-radius:8px 8px 0 0;min-height:30px;display:flex;align-items:center;justify-content:center;font-size:1.5em;color:#fff;transition:height .8s cubic-bezier(.2,1,.3,1)}
+.cbar.right .fill{outline:4px solid #fff;outline-offset:-1px}
+.cbar.wrong{opacity:.55}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999;display:flex;justify-content:center;align-items:center;padding:14px}
+.modal{background:#fff;color:#333;padding:26px;border-radius:16px;max-width:560px;width:100%;text-align:left;box-shadow:0 8px 0 rgba(0,0,0,.3);max-height:92vh;overflow:auto}
+.modal h2{color:var(--purple);text-align:center;margin:0 0 12px;font-weight:900}
+.rrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee}
+.rpos{min-width:34px;font-weight:900;font-size:1.2em;text-align:center}
+.rname{min-width:90px;max-width:140px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbar{flex:1;height:14px;background:#eee;border-radius:8px;overflow:hidden}
+.rbar i{display:block;height:100%;background:linear-gradient(90deg,#46178f,#8a4fe0);border-radius:8px;transition:width .6s}
+.rsc{min-width:48px;text-align:right;color:var(--purple)}
+#modal-pause{background:rgba(51,16,107,.95);z-index:1000;flex-direction:column;text-align:center}
+#modal-pause .big{font-size:5em}
+
+/* Podio */
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:30px auto 10px;max-width:760px;height:380px}
+.pcol{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:min(220px,30vw)}
+.pavatar{font-size:clamp(2.6em,9vw,4.6em);margin-bottom:4px;animation:flt 3s ease-in-out infinite}
+@keyframes flt{50%{transform:translateY(-10px)}}
+.kname{font-weight:900;font-size:1.1em;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+.kscore{font-weight:700;opacity:.85;margin-bottom:6px}
+.pblock{width:100%;border-radius:10px 10px 0 0;display:flex;justify-content:center;align-items:flex-start;padding-top:10px;font-size:2.4em;font-weight:900;color:rgba(0,0,0,.55);animation:rise .9s cubic-bezier(.2,1,.3,1) both}
+@keyframes rise{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+.p1 .pblock{height:200px;background:#ffb002}.p2 .pblock{height:140px;background:#b3bac4}.p3 .pblock{height:100px;background:#e05c21}
+.p2 .pblock{animation-delay:.3s}.p1 .pblock{animation-delay:.6s}.p3 .pblock{animation-delay:0s}
+.final-title{font-size:clamp(2em,7vw,3.4em);font-weight:900;text-shadow:0 4px 0 rgba(0,0,0,.25);margin:0}
+</style>
+</head>
+<body>
+
+<div id="particles" aria-hidden="true"></div>
+
+<div id="hud" class="hidden">
+  <span class="hud-pill" id="hud-q">📋 0 / 0</span>
+  <span class="hud-pill" id="hud-p">👥 0</span>
+</div>
+<div class="topbtns">
+  <button class="round hidden" id="btn-auto" title="Giro automático: activado">🔁</button>
+  <button class="round hidden" id="btn-pause" title="Pausa">⏸</button>
+  <button class="round hidden" id="btn-rank" title="Marcador">📊</button>
+  <button class="round" id="btn-mute" title="Sonido">🔇</button>
+</div>
+
+<main class="container" id="main">
+
+  <!-- LOBBY -->
+  <section id="setup" class="pop">
+    <h1>Ruleta Sustentable</h1>
+    <p class="sub">Temas 3, 4 y 5 · Escenarios Sociocultural, Económico y Modificado</p>
+
+    <div class="lobby-grid">
+      <div>
+        <div class="join-box">
+          <p class="lbl">Únete desde tu celular en</p>
+          <p id="join-url">Cargando...</p>
+        </div>
+        <div id="qrbox"><div id="qrcode"></div></div>
+        <p class="sub" style="margin:0">Escanea el código con la cámara para conectarte 📱</p>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="row2">
+            <div>
+              <p style="margin:0 0 8px;font-weight:900">Modo de juego</p>
+              <select id="mode">
+                <option value="marathon">Maratón (todas las preguntas)</option>
+                <option value="points">Carrera de puntos</option>
+                <option value="turns">Partida rápida</option>
+              </select>
+            </div>
+            <div>
+              <p style="margin:0 0 8px;font-weight:900">Tiempo por pregunta</p>
+              <select id="qtime">
+                <option value="15">15 segundos</option>
+                <option value="20" selected>20 segundos</option>
+                <option value="30">30 segundos</option>
+                <option value="45">45 segundos</option>
+                <option value="60">60 segundos</option>
+              </select>
+            </div>
+          </div>
+          <div id="target-wrap" class="hidden">
+            <p id="target-label" style="margin:0 0 6px;font-weight:800"></p>
+            <input type="number" id="target" min="1" max="100000" style="width:130px">
+          </div>
+          <label class="check"><input type="checkbox" id="autospin" checked> Giro automático de la ruleta</label>
+        </div>
+
+        <div class="panel" id="names" style="min-height:90px"><h3 style="opacity:.8;margin:0">Esperando jugadores...</h3></div>
+
+        <div>
+          <button class="k-btn white" onclick="$('modal-inst').classList.remove('hidden')">📖 Instrucciones</button>
+          <button id="btn-start" class="k-btn hidden">¡Comenzar!</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JUEGO -->
+  <section id="game" class="hidden">
+    <div id="wheel-stage">
+      <h2 id="turn"></h2>
+      <div id="wheel-wrap">
+        <div id="pointer"></div>
+        <div id="wheel" aria-hidden="true"></div>
+        <button id="spin" title="¡Gira la ruleta!">🌍</button>
+      </div>
+      <div id="landed" aria-live="polite"></div>
+    </div>
+    <div id="qarea" class="qbox hidden" aria-live="polite"></div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="end" class="hidden">
+    <h2 class="final-title">¡Juego terminado!</h2>
+    <div id="podium" class="podium"></div>
+    <div style="margin-top:20px">
+      <button class="k-btn gold" onclick="exportToExcel()">Descargar Excel 📊</button>
+      <button class="k-btn white" id="btn-new">Nueva partida 🔄</button>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL INSTRUCCIONES -->
+<div id="modal-inst" class="overlay hidden">
+  <div class="modal">
+    <h2>📖 Instrucciones</h2>
+    <ul style="font-size:1.05em;line-height:1.6;padding-left:20px;font-weight:700">
+      <li>Escanea el QR o abre el enlace en tu celular.</li>
+      <li>La ruleta gira y selecciona un bloque de los Temas 3, 4 o 5.</li>
+      <li>Responde en tu celular con la figura de color correcta. ¡Mientras más rápido, más puntos!</li>
+      <li>Si aciertas 3 o más seguidas, ganas bono de racha 🔥.</li>
+      <li>Los eventos de sustentabilidad pueden sumar o restar puntos.</li>
+      <li>Cada 5 preguntas se muestra el marcador parcial.</li>
+    </ul>
+    <div style="text-align:center"><button class="k-btn" onclick="$('modal-inst').classList.add('hidden')">¡Entendido!</button></div>
+  </div>
+</div>
+
+<!-- MODAL MARCADOR -->
+<div id="modal-rank" class="overlay hidden">
+  <div class="modal">
+    <h2>📊 Marcador</h2>
+    <div id="rank-list"></div>
+    <div style="text-align:center"><button class="k-btn" id="rank-close">Continuar</button></div>
+  </div>
+</div>
+
+<!-- PAUSA -->
+<div id="modal-pause" class="overlay hidden">
+  <div class="big">⏸</div>
+  <h2 style="color:#fff;font-size:2.4em;margin:6px 0 14px">Juego en pausa</h2>
+  <button class="k-btn" id="btn-resume">▶ Reanudar</button>
+</div>
+
+<script>
+"use strict";
+
+const SEGS = [
+  /* Tema 3 · Escenario sociocultural (0-4) */
+  {k:'soc',  e:'👥', n:'3.1–3.2 Sociedad y cultura',            t:'Tema 3 · Sociocultural', tc:'t3'},
+  {k:'idh',  e:'📈', n:'3.2.1–3.2.4 Desarrollo humano y social',t:'Tema 3 · Sociocultural', tc:'t3'},
+  {k:'des',  e:'🏜️', n:'3.3 Impacto humano y desertificación',  t:'Tema 3 · Sociocultural', tc:'t3'},
+  {k:'cli',  e:'🌡️', n:'3.4–3.5 Cambio climático y consumo',    t:'Tema 3 · Sociocultural', tc:'t3'},
+  {k:'pol',  e:'📜', n:'3.6 Estrategias y política ambiental',  t:'Tema 3 · Sociocultural', tc:'t3'},
+  /* Tema 4 · Escenario económico (5-9) */
+  {k:'eco',  e:'💼', n:'4.1–4.3 Economía y producción',         t:'Tema 4 · Económico',     tc:'t4'},
+  {k:'pib',  e:'📊', n:'4.4 Producto Interno Bruto (PIB)',      t:'Tema 4 · Económico',     tc:'t4'},
+  {k:'obs',  e:'🏭', n:'4.5–4.6 Costos y obsolescencia',        t:'Tema 4 · Económico',     tc:'t4'},
+  {k:'cir',  e:'🌳', n:'4.7–4.8 Servicios y economía circular', t:'Tema 4 · Económico',     tc:'t4'},
+  {k:'hue',  e:'👣', n:'4.8.1–4.8.3 Huella, ESR y desarrollo',  t:'Tema 4 · Económico',     tc:'t4'},
+  /* Tema 5 · Escenario modificado (10-14) */
+  {k:'dem',  e:'🌋', n:'5.1 Demografía, energía y fenómenos',   t:'Tema 5 · Modificado',    tc:'t5'},
+  {k:'est',  e:'⚖️', n:'5.2 Estado y Constitución',             t:'Tema 5 · Modificado',    tc:'t5'},
+  {k:'ins',  e:'🌾', n:'5.3–5.4 Inseguridad y desigualdad',     t:'Tema 5 · Modificado',    tc:'t5'},
+  {k:'pml',  e:'⚡', n:'5.5.1–5.5.2 Producción limpia y ecoef.',t:'Tema 5 · Modificado',    tc:'t5'},
+  {k:'pnd',  e:'🏛️', n:'5.5.3 Planes de desarrollo',            t:'Tema 5 · Modificado',    tc:'t5'},
+  /* Evento especial (15) */
+  {k:'evt',  e:'🎲', n:'Evento de sustentabilidad',             t:'Evento especial',        tc:'lvl'}
+];
+const EVT = SEGS.length - 1;
+const COLORS = ['#2ecc71','#3498db','#f1c40f','#e67e22','#9b59b6','#e74c3c','#1abc9c','#fd79a8'];
+const LVL = {C:['Concepto',1], D:['Dato / Análisis',2], A:['Aplicación',3]};
+const SHAPES = [['k-red','▲'],['k-blue','◆'],['k-yellow','●'],['k-green','■']];
+const SHAPE_COLORS = ['#e21b3c','#1368ce','#d89e00','#26890c'];
+
+/* Formato: [segmento(0-14), subtema, nivel(C|D|A), "pregunta", [optA, optB, optC, optD], idxCorrecto(0-3), "explicación"] */
+const Q = [
+ /* ================= TEMA 3. ESCENARIO SOCIOCULTURAL (1-20) ================= */
+ [0,'3.1 Sociedad y organización social','C',
+  "¿Qué es la organización social?",
+  ["La forma en que un grupo se estructura con roles, normas e instituciones",
+   "El número de habitantes de un país",
+   "El conjunto de recursos naturales de una región",
+   "El sistema de producción de una fábrica"], 0,
+  "Describe cómo se estructura una sociedad: roles, reglas e instituciones como la familia, la escuela o el gobierno."],
+
+ [0,'3.1 Sociedad y organización social','A',
+  "Vecinos se organizan para separar la basura de su colonia. ¿Qué ejemplifica?",
+  ["Organización social para resolver un problema ambiental",
+   "Obsolescencia percibida",
+   "Externalización de costos",
+   "Crecimiento demográfico"], 0,
+  "La comunidad se organiza y toma decisiones colectivas sobre sus residuos."],
+
+ [0,'3.2 Cultura y diversidad sociocultural','C',
+  "¿Qué describe mejor la diversidad sociocultural?",
+  ["Que todas las comunidades consumen lo mismo",
+   "La coexistencia de distintas lenguas, tradiciones y formas de vida",
+   "El crecimiento acelerado de las ciudades",
+   "La variedad de especies animales de una región"], 1,
+  "México es pluricultural: conviven muchos pueblos, lenguas y costumbres."],
+
+ [0,'3.2 Cultura y diversidad sociocultural','A',
+  "¿Qué práctica tradicional mexicana es un ejemplo de saber cultural sustentable?",
+  ["La milpa: maíz, frijol y calabaza en la misma parcela",
+   "El monocultivo con agroquímicos",
+   "La quema de basura en el patio",
+   "La tala para ampliar potreros"], 0,
+  "La milpa combina cultivos que se complementan y conservan la fertilidad del suelo."],
+
+ [1,'3.2.1 Desarrollo humano','C',
+  "Según el PNUD, el desarrollo humano consiste en...",
+  ["Ampliar las capacidades y oportunidades de las personas",
+   "Aumentar únicamente el PIB del país",
+   "Construir más carreteras y edificios",
+   "Aumentar el número de habitantes"], 0,
+  "El enfoque de desarrollo humano pone a las personas, no al crecimiento económico, en el centro."],
+
+ [1,'3.2.2 Índice de Desarrollo Humano','C',
+  "¿Qué tres dimensiones mide el Índice de Desarrollo Humano (IDH)?",
+  ["Salud, educación e ingreso",
+   "PIB, empleo y vivienda",
+   "Agua, energía y residuos",
+   "Seguridad, migración y clima"], 0,
+  "Esperanza de vida, escolaridad e ingreso nacional bruto per cápita."],
+
+ [1,'3.2.2 Índice de Desarrollo Humano','D',
+  "Con un IDH de 0.789 (Informe 2025), ¿en qué grupo se ubica México?",
+  ["Desarrollo humano bajo",
+   "Desarrollo humano alto",
+   "Desarrollo humano medio",
+   "Desarrollo humano muy alto"], 1,
+  "México tiene un IDH de 0.789 y ocupa el lugar 81 de 193 países."],
+
+ [1,'3.2.3 Índice de desarrollo social','D',
+  "¿Qué porcentaje de la población de México estaba en pobreza multidimensional en 2024?",
+  ["12.5%","45.0%","60.2%","29.6%"], 3,
+  "Según el INEGI, 38.5 millones de personas estaban en pobreza multidimensional en 2024."],
+
+ [1,'3.2.4 Desarrollo urbano y rural','D',
+  "Para el INEGI, una localidad es urbana si tiene...",
+  ["Más de 100,000 habitantes",
+   "2,500 habitantes o más, o es cabecera municipal",
+   "Un aeropuerto o un puerto",
+   "Más de la mitad de su población en el campo"], 1,
+  "Las localidades con menos de 2,500 habitantes que no son cabecera se consideran rurales."],
+
+ [2,'3.3 Impacto de actividades humanas','A',
+  "¿Cuál es un impacto humano directo sobre la naturaleza?",
+  ["Una erupción volcánica",
+   "Las mareas del océano",
+   "El cambio de estaciones",
+   "La deforestación por cambio de uso de suelo"], 3,
+  "Talar un bosque para cultivo o vivienda es una actividad humana que destruye hábitats."],
+
+ [2,'3.3.1 Desertificación y migración','C',
+  "¿Qué es la desertificación?",
+  ["El avance natural de las playas",
+   "La formación de desiertos solo por falta de lluvia",
+   "Degradación de tierras secas por el clima y la actividad humana",
+   "La migración de animales del desierto"], 2,
+  "Sobrepastoreo, deforestación y malas prácticas agrícolas degradan el suelo en zonas secas."],
+
+ [2,'3.3.1 Desertificación y migración','A',
+  "Un campesino deja su parcela porque ya no produce y se va a la ciudad. ¿Qué fenómenos se relacionan?",
+  ["Inflación y PIB",
+   "Obsolescencia y consumismo",
+   "Industrialización y huracanes",
+   "Desertificación y migración"], 3,
+  "La degradación del suelo empuja a las familias rurales a migrar."],
+
+ [3,'3.4 Cambio climático','C',
+  "¿Cuál es la principal causa del cambio climático actual?",
+  ["La actividad del Sol",
+   "Los gases de efecto invernadero por quemar combustibles fósiles",
+   "Las erupciones volcánicas",
+   "La rotación de la Tierra"], 1,
+  "El CO₂ y otros GEI de origen humano atrapan calor en la atmósfera."],
+
+ [3,'3.4 Cambio climático','D',
+  "Según la OMM, ¿cuánto superó 2024 la temperatura de la era preindustrial?",
+  ["0.5 °C","10 °C","1.55 °C","3.0 °C"], 2,
+  "2024 fue el año más cálido registrado, 1.55 °C por encima del periodo 1850-1900."],
+
+ [3,'3.5 Estilos de vida y consumo','A',
+  "¿Qué acción corresponde a un consumo responsable?",
+  ["Cambiar de celular cada año",
+   "Dejar los cargadores conectados",
+   "Usar termo en lugar de comprar botellas desechables",
+   "Usar el auto para ir a dos cuadras"], 2,
+  "Reutilizar evita residuos y el consumo de recursos para fabricar desechables."],
+
+ [4,'3.6 Estrategias socioculturales','A',
+  "¿Cuál es una estrategia de sustentabilidad en el escenario sociocultural?",
+  ["Educación ambiental y participación ciudadana",
+   "Aumentar la extracción de petróleo",
+   "Eliminar áreas verdes urbanas",
+   "Prohibir el reciclaje"], 0,
+  "Cambiar valores y hábitos mediante educación y participación es la base de este escenario."],
+
+ [4,'3.6.1 Carta de la Tierra','C',
+  "¿Qué es la Carta de la Tierra?",
+  ["Una ley mexicana de protección ambiental",
+   "Una declaración de principios éticos para un mundo justo y sostenible",
+   "Un mapa oficial de los continentes",
+   "Un tratado de libre comercio"], 1,
+  "Presentada en el año 2000, tiene 4 pilares y 16 principios."],
+
+ [4,'3.6.2 Agenda 21','D',
+  "¿En qué evento se aprobó la Agenda 21?",
+  ["Protocolo de Kioto, 1997",
+   "Acuerdo de París, 2015",
+   "Cumbre de la Tierra, Río de Janeiro 1992",
+   "Conferencia de Estocolmo, 1972"], 2,
+  "Es el plan de acción para el desarrollo sostenible en el siglo XXI."],
+
+ [4,'3.6.3 Política ambiental','D',
+  "¿Cuál es la ley marco de la política ambiental en México?",
+  ["Ley Federal del Trabajo",
+   "Ley General de Salud",
+   "Código Civil Federal",
+   "Ley General del Equilibrio Ecológico y la Protección al Ambiente"], 3,
+  "La LGEEPA (1988) regula la protección ambiental y el aprovechamiento de recursos."],
+
+ [4,'3.6.3 Política ambiental','D',
+  "¿Qué institución vigila que se cumplan las leyes ambientales en México?",
+  ["INEGI","PROFEPA","SEP","CFE"], 1,
+  "La Procuraduría Federal de Protección al Ambiente inspecciona y sanciona."],
+
+ /* ================= TEMA 4. ESCENARIO ECONÓMICO (21-40) ================= */
+ [5,'4.1 Economía y diversidad económica','C',
+  "¿Qué estudia la economía?",
+  ["Solo el movimiento de la bolsa de valores",
+   "La composición química de los recursos",
+   "El comportamiento del clima",
+   "Cómo la sociedad administra recursos escasos para cubrir sus necesidades"], 3,
+  "Analiza la producción, distribución y consumo de bienes y servicios."],
+
+ [5,'4.1 Economía y diversidad económica','A',
+  "¿Qué actividad es clave en la diversidad económica de Colima?",
+  ["La extracción de petróleo en aguas profundas",
+   "La industria aeroespacial",
+   "El puerto de Manzanillo y los servicios logísticos",
+   "La producción de vino a gran escala"], 2,
+  "Manzanillo es uno de los puertos más importantes del país, junto con el turismo y la agricultura."],
+
+ [5,'4.2 Sistemas de producción','D',
+  "Si sube mucho el precio del agua embotellada, ¿qué suele pasar con su demanda?",
+  ["Disminuye","Aumenta","No cambia nunca","Se vuelve infinita"], 0,
+  "Ley de la demanda: a mayor precio, menor cantidad demandada."],
+
+ [5,'4.2 Sistemas de producción','A',
+  "Una sequía reduce la cosecha de limón. ¿Qué ocurre normalmente con su precio?",
+  ["Baja, porque hay menos limones",
+   "No cambia",
+   "Se vuelve gratuito",
+   "Sube, porque disminuye la oferta"], 3,
+  "Con menos oferta y la misma demanda, el precio tiende a subir."],
+
+ [5,'4.3 Economía global vs. local','A',
+  "¿Cuál es un ejemplo de economía local?",
+  ["Comprar en línea un producto importado",
+   "Invertir en la bolsa de otro país",
+   "Exportar autos a Europa",
+   "Comprar fruta de temporada en el mercado de tu ciudad"], 3,
+  "Se produce y consume en la región, con menos transporte y más empleo local."],
+
+ [6,'4.4 Producto Interno Bruto','C',
+  "¿Qué mide el PIB?",
+  ["El nivel de felicidad de la población",
+   "La cantidad de dinero en los bancos",
+   "La deuda total del gobierno",
+   "El valor de los bienes y servicios finales producidos en un país"], 3,
+  "Se calcula para un periodo, normalmente un año o un trimestre."],
+
+ [6,'4.4 Producto Interno Bruto','D',
+  "¿Qué sector aporta la mayor parte del PIB de México?",
+  ["El terciario (comercio y servicios)",
+   "El primario (agricultura y pesca)",
+   "El secundario (industria)",
+   "Todos aportan lo mismo"], 0,
+  "Al cuarto trimestre de 2024, el terciario generó el 62.3% del PIB nominal."],
+
+ [6,'4.4 Producto Interno Bruto','D',
+  "¿Cuál es una limitación del PIB como medida de bienestar?",
+  ["No mide la contaminación ni cómo se reparte el ingreso",
+   "No se puede calcular",
+   "Solo mide la agricultura",
+   "Mide únicamente las exportaciones"], 0,
+  "Un país puede crecer en PIB mientras agota recursos o aumenta la desigualdad."],
+
+ [7,'4.5 Externalización e internalización','A',
+  "Una fábrica contamina un río y la comunidad paga la limpieza. Esto es...",
+  ["Externalización de costos",
+   "Internalización de costos",
+   "Un subsidio a la comunidad",
+   "Producción más limpia"], 0,
+  "El daño lo pagan terceros que no participaron en la actividad."],
+
+ [7,'4.5 Externalización e internalización','A',
+  "¿Cuál es un ejemplo de internalización de costos?",
+  ["Cobrar las bolsas de plástico en el súper",
+   "Regalar bolsas de plástico sin límite",
+   "Tirar residuos en un baldío",
+   "Descargar aguas sin tratar"], 0,
+  "Aplica el principio \"el que contamina paga\" e incluye el costo ambiental en el precio."],
+
+ [7,'4.6 Obsolescencia','C',
+  "¿Qué es la obsolescencia planificada?",
+  ["Reparar un producto para que dure más",
+   "Reciclar los productos usados",
+   "Vender productos de segunda mano",
+   "Diseñar un producto para que deje de servir en poco tiempo"], 3,
+  "Se limita a propósito la vida útil para obligar a comprar otro."],
+
+ [7,'4.6 Obsolescencia','A',
+  "Cambias tu celular, que funciona bien, porque salió un modelo nuevo. Esto es...",
+  ["Obsolescencia programada",
+   "Obsolescencia percibida",
+   "Economía circular",
+   "Internalización de costos"], 1,
+  "El producto sirve, pero la publicidad o la moda lo hacen parecer viejo."],
+
+ [8,'4.7 Servicios ambientales','C',
+  "¿Cuál es un servicio ambiental que brinda un bosque?",
+  ["Producir plástico",
+   "Generar residuos sólidos",
+   "Aumentar la temperatura",
+   "Captar agua y capturar carbono"], 3,
+  "Los ecosistemas regulan el clima, el agua y el suelo, entre otros beneficios."],
+
+ [8,'4.7 Servicios ambientales','D',
+  "¿Qué programa de la CONAFOR paga a dueños de bosques por conservarlos?",
+  ["Hoy No Circula",
+   "Pago por Servicios Ambientales",
+   "Programa de Vivienda Social",
+   "Becas Benito Juárez"], 1,
+  "Funciona desde 2003 para reconocer el valor económico de los bosques."],
+
+ [8,'4.8 Estrategias económicas','A',
+  "¿Qué estrategia mantiene los materiales en uso el mayor tiempo posible?",
+  ["Economía lineal (usar y tirar)",
+   "Obsolescencia programada",
+   "Economía circular",
+   "Consumismo"], 2,
+  "Reparar, reutilizar y reciclar evita extraer nuevos recursos."],
+
+ [9,'4.8.1 Ciclo de vida y huella ecológica','C',
+  "¿Qué evalúa el análisis del ciclo de vida de un producto?",
+  ["Sus impactos desde la extracción hasta su desecho",
+   "Solo su precio de venta",
+   "Únicamente su etapa de uso",
+   "Su popularidad en redes sociales"], 0,
+  "Se le conoce como análisis \"de la cuna a la tumba\" (ISO 14040)."],
+
+ [9,'4.8.1 Ciclo de vida y huella ecológica','C',
+  "¿Qué mide la huella ecológica?",
+  ["El número de pasos que caminamos",
+   "La superficie productiva necesaria para sostener nuestro consumo",
+   "La cantidad de árboles de un país",
+   "La huella dactilar de una persona"], 1,
+  "Se compara con la biocapacidad del planeta."],
+
+ [9,'4.8.1 Ciclo de vida y huella ecológica','D',
+  "¿En qué fecha fue el Día de la Sobrecapacidad de la Tierra en 2025?",
+  ["31 de diciembre","1 de marzo","15 de octubre","24 de julio"], 3,
+  "Desde esa fecha la humanidad ya había usado lo que el planeta regenera en un año."],
+
+ [9,'4.8.2 Empresas socialmente responsables','D',
+  "¿Qué organismo otorga en México el Distintivo ESR?",
+  ["INEGI","CEMEFI","SEP","CFE"], 1,
+  "El Centro Mexicano para la Filantropía lo otorga desde 2001."],
+
+ [9,'4.8.3 Desarrollo regional','A',
+  "¿Qué opción aprovecha de forma sostenible los recursos naturales de Colima?",
+  ["Talar el bosque sin control para vender madera",
+   "Rellenar manglares para construir",
+   "Pescar sin respetar las vedas",
+   "Ecoturismo responsable en manglares y el Nevado de Colima"], 3,
+  "Genera empleo local sin superar la capacidad de regeneración del ecosistema."],
+
+ /* ================= TEMA 5. ESCENARIO MODIFICADO (41-57) ================= */
+ [10,'5.1 Demografía, industria y energía','D',
+  "¿Qué combinación aumenta más la presión sobre los recursos naturales?",
+  ["Crecimiento demográfico, industrialización y energía fósil",
+   "Reforestación y ahorro de agua",
+   "Energía solar y reciclaje",
+   "Transporte público y bicicleta"], 0,
+  "Más población e industria demandan más energía, que proviene sobre todo de fósiles."],
+
+ [10,'5.1 Demografía, industria y energía','D',
+  "¿Cuántos habitantes registró México en la Encuesta Intercensal 2025?",
+  ["Alrededor de 60 millones",
+   "Alrededor de 250 millones",
+   "Alrededor de 1,000 millones",
+   "Alrededor de 130.9 millones"], 3,
+  "El INEGI registró 130,911,314 habitantes."],
+
+ [10,'5.1.1 Fenómenos naturales','A',
+  "¿Qué fenómenos de origen geológico son frecuentes en Colima?",
+  ["Tornados y nevadas",
+   "Sismos y actividad volcánica",
+   "Tormentas de arena",
+   "Avalanchas de nieve"], 1,
+  "Colima está en zona sísmica y tiene uno de los volcanes más activos del país."],
+
+ [10,'5.1.1 Fenómenos naturales','C',
+  "¿Cuándo un fenómeno natural se convierte en desastre?",
+  ["Siempre que llueve",
+   "Solo si ocurre de noche",
+   "Nunca, son cosas distintas",
+   "Cuando afecta a una población vulnerable"], 3,
+  "La vulnerabilidad, como vivir en zonas de riesgo, convierte el fenómeno en desastre."],
+
+ [11,'5.2 El Estado como regulador','C',
+  "¿Cómo regula el Estado el desarrollo?",
+  ["Dejando que el mercado decida todo",
+   "Solo con campañas publicitarias",
+   "Prohibiendo toda actividad económica",
+   "Con leyes, normas, planes, impuestos e incentivos"], 3,
+  "Orienta la economía y protege el ambiente y los derechos sociales."],
+
+ [11,'5.2.1 Constitución Política','D',
+  "¿Qué artículo constitucional reconoce el derecho a un medio ambiente sano?",
+  ["Artículo 3.º","Artículo 4.º","Artículo 123","Artículo 130"], 1,
+  "También reconoce el derecho al acceso al agua."],
+
+ [11,'5.2.1 Constitución Política','D',
+  "El artículo 27 constitucional establece que tierras y aguas pertenecen originalmente a...",
+  ["Las empresas privadas",
+   "Los gobiernos extranjeros",
+   "La Nación",
+   "Los municipios únicamente"], 2,
+  "La Nación regula el aprovechamiento de los recursos naturales."],
+
+ [12,'5.3 Inseguridad','C',
+  "¿Qué es la inseguridad alimentaria?",
+  ["No tener acceso regular a alimentos suficientes y nutritivos",
+   "Comer en exceso",
+   "Tener miedo a ciertos alimentos",
+   "Vender alimentos sin factura"], 0,
+  "Puede ser leve, moderada o severa (hambre)."],
+
+ [12,'5.3 Inseguridad','D',
+  "Según el informe SOFI 2025, ¿cuántas personas padecieron hambre en 2024?",
+  ["Unos 67 millones",
+   "Unos 673 millones",
+   "Unos 2,000 millones",
+   "Unos 8,200 millones"], 1,
+  "Equivale al 8.2% de la población mundial."],
+
+ [12,'5.4 Distribución de la riqueza','C',
+  "En el coeficiente de Gini, ¿qué significan 0 y 1?",
+  ["0 = pobreza total; 1 = riqueza total",
+   "0 = país rural; 1 = país urbano",
+   "0 = sin PIB; 1 = PIB máximo",
+   "0 = igualdad total; 1 = desigualdad total"], 3,
+  "En 2024, el Gini de México fue 0.391."],
+
+ [12,'5.4 Distribución de la riqueza','D',
+  "Según la ENIGH 2024, ¿cuántas veces más ingresó el 10% más rico que el 10% más pobre?",
+  ["14 veces","2 veces","5 veces","50 veces"], 0,
+  "La brecha disminuyó respecto a 2016, cuando era de 21 veces."],
+
+ [13,'5.5 Estrategias del escenario modificado','A',
+  "¿Cuál es una estrategia de sustentabilidad para un escenario ya modificado?",
+  ["Construir en zonas de riesgo",
+   "Aumentar el uso de carbón",
+   "Restaurar ecosistemas y ordenar el territorio",
+   "Eliminar las normas ambientales"], 2,
+  "Busca reducir los daños existentes y evitar nuevos."],
+
+ [13,'5.5.1 Producción más limpia','C',
+  "¿Qué caracteriza a la producción más limpia?",
+  ["Limpiar la contaminación al final del tubo",
+   "Producir más sin importar los residuos",
+   "Trasladar la fábrica a otro país",
+   "Prevenir la contaminación desde el origen del proceso"], 3,
+  "Es una estrategia preventiva: ahorra materias primas, agua y energía."],
+
+ [13,'5.5.2 Procesos ecoeficientes','C',
+  "¿Qué significa ecoeficiencia?",
+  ["Producir menos para ganar más dinero",
+   "Usar solo materiales importados",
+   "Producir más con menos recursos y menos contaminación",
+   "Aumentar la producción de residuos"], 2,
+  "Concepto difundido por el WBCSD en 1992; genera ahorro ambiental y económico."],
+
+ [13,'5.5.2 Procesos ecoeficientes','A',
+  "¿Qué acción es un ejemplo de proceso ecoeficiente?",
+  ["Dejar las luces encendidas toda la noche",
+   "Tirar el agua de enjuague al drenaje",
+   "Cambiar a lámparas LED con sensores de presencia",
+   "Usar más empaques por producto"], 2,
+  "Reduce el consumo eléctrico y el gasto de la empresa."],
+
+ [14,'5.5.3 Planes de desarrollo','D',
+  "¿Cuántos ejes generales tiene el Plan Nacional de Desarrollo 2025-2030?",
+  ["Cuatro","Dos","Siete","Diez"], 0,
+  "Uno de ellos es el eje de desarrollo sustentable."],
+
+ [14,'5.5.3 Planes de desarrollo','D',
+  "¿Cuánto dura el periodo de un Plan Municipal de Desarrollo en Colima?",
+  ["Un año",
+   "Seis años",
+   "Diez años",
+   "Tres años, el periodo del ayuntamiento"], 3,
+  "Se alinea con el Plan Estatal 2021-2027 y el Plan Nacional 2025-2030."]
+];
+
+/* Eventos: [texto, objetivo (all|first|last|random), puntos] */
+const EVENTS = [
+ ["¡Obsolescencia programada! El jugador en 1er lugar pierde 200 puntos 📱", 'first', -200],
+ ["Multa de PROFEPA por externalización de costos. Un jugador al azar pierde 100 puntos 🏭", 'random', -100],
+ ["¡Consumo local y responsable! Todos ganan 100 puntos 🧺", 'all', 100],
+ ["Pago por Servicios Ambientales (CONAFOR). El jugador en último lugar gana 300 puntos 🌳", 'last', 300],
+ ["Día de la Sobrecapacidad de la Tierra. Todos pierden 100 puntos 🌍", 'all', -100],
+ ["Distintivo ESR por procesos ecoeficientes. Un jugador al azar gana 200 puntos 🏅", 'random', 200]
+];
+
+const AVATARS = ['🦊','🐸','🦉','🐢','🦋','🐝','🐋','🦅','🦌','🦦'];
+const SEG_ANG = 360 / SEGS.length;
+const center = i => i * SEG_ANG + SEG_ANG / 2;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ============ SONIDO (Web Audio, sin archivos: funciona sin internet) ============ */
+let isMuted = true, AC = null, musicTimer = null, musicStep = 0, musicMode = 'lobby';
+function ac() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (AC && AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function tone(freq, dur, type, vol, delay) {
+  const a = ac(); if (!a || isMuted) return;
+  const t = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || .12, t + .01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + .03);
+}
+function playSound(t) {
+  if (isMuted) return;
+  if (t === 'tick') tone(1200, .04, 'square', .04);
+  else if (t === 'beep') tone(880, .12, 'square', .07);
+  else if (t === 'buzz') { tone(300, .5, 'sawtooth', .1); tone(220, .5, 'sawtooth', .08, .05); }
+  else if (t === 'win') { tone(523, .14, 'triangle', .14); tone(659, .14, 'triangle', .14, .13); tone(784, .3, 'triangle', .14, .26); }
+  else if (t === 'lose') { tone(220, .25, 'sawtooth', .1); tone(165, .45, 'sawtooth', .1, .22); }
+  else if (t === 'event') { tone(880, .18, 'sine', .12); tone(1319, .35, 'sine', .12, .16); }
+  else if (t === 'land') { tone(660, .12, 'triangle', .1); tone(990, .22, 'triangle', .1, .1); }
+}
+const SCALE = [262, 294, 330, 392, 440, 523, 587];
+const MELODY = [0,2,4,2, 5,4,2,0, 1,3,5,3, 6,5,3,1];
+function musicTick() {
+  if (isMuted) return;
+  const n = musicStep++, q = musicMode === 'question';
+  if (n % 4 === 0) tone([131, 165, 175, 196][(n / 4 | 0) % 4], q ? .22 : .4, 'triangle', .05);
+  const note = SCALE[MELODY[n % MELODY.length]];
+  tone(q ? note * 2 : note, q ? .1 : .2, q ? 'square' : 'triangle', q ? .018 : .03);
+}
+function startMusic(mode) {
+  if (mode) musicMode = mode;
+  clearInterval(musicTimer); musicTimer = null;
+  if (isMuted || (G && G.paused)) return;
+  musicTimer = setInterval(musicTick, musicMode === 'question' ? 170 : 300);
+}
+function stopMusic() { clearInterval(musicTimer); musicTimer = null; }
+function toggleMute() {
+  isMuted = !isMuted;
+  $('btn-mute').textContent = isMuted ? '🔇' : '🔊';
+  if (isMuted) stopMusic(); else { ac(); startMusic(); playSound('tick'); }
+}
+$('btn-mute').onclick = toggleMute;
+
+(function () {
+  const box = $('particles'), types = ['🍃', '🍂', '🌿', '🌎'];
+  for (let i = 0; i < 12; i++) {
+    const l = document.createElement('div'); l.className = 'leaf'; l.textContent = types[i % 4];
+    l.style.cssText = `left:${Math.random() * 100}vw;animation-duration:${7 + Math.random() * 5}s;animation-delay:${Math.random() * 5}s;font-size:${15 + Math.random() * 15}px`;
+    box.appendChild(l);
+  }
+})();
+
+/* ============ RULETA ============ */
+(function buildWheel() {
+  const w = $('wheel'), stops = SEGS.map((s, i) => `${COLORS[i % COLORS.length]} ${i * SEG_ANG}deg ${(i + 1) * SEG_ANG}deg`);
+  w.style.background = `conic-gradient(${stops.join(',')})`;
+  w.style.transitionDuration = '4200ms';
+  SEGS.forEach((s, i) => {
+    const d = document.createElement('div'); d.className = 'seg-label';
+    d.style.transform = `rotate(${center(i)}deg) translateY(calc(var(--wheel) * -0.35))`;
+    d.innerHTML = `<span>${s.e}</span>`; w.appendChild(d);
+  });
+})();
+
+/* ============ LÓGICA ============ */
+const G = { players: [], rot: 0, turns: 0, qCount: 0, mode: 'marathon', target: 1000, queues: [], item: null, seg: 0,
+  busy: false, resolving: false, started: false, correctIndex: 0, curAns: '', curWhy: '', finalRank: [],
+  qActive: false, curPts: 1, secs: 20, deadline: 0, tInt: null, lastQ: false, partialAt: 0,
+  paused: false, pausedAt: 0, pendingDecide: false, pendingSpin: false, lastLeft: -1,
+  autoSpin: true, spinT: null };
+let currentAnswersObj = {};
+
+function newQueues() { G.queues = SEGS.map(() => []); shuffle(Q).forEach(q => G.queues[q[0]].push(q)); G.queues[EVT] = shuffle(EVENTS); }
+const questionsLeft = () => G.queues.slice(0, EVT).reduce((a, q) => a + q.length, 0);
+
+function makeOptions(item) {
+  const rawOpts = item[4];
+  const ans = rawOpts[item[5]];
+  const opts = shuffle(rawOpts);
+  return { opts, ans, ci: opts.indexOf(ans) };
+}
+
+function updateMode() {
+  G.mode = $('mode').value;
+  const wrap = $('target-wrap');
+  if (G.mode === 'points') { wrap.classList.remove('hidden'); $('target-label').textContent = 'Puntos meta:'; $('target').value = 1000; }
+  else if (G.mode === 'turns') { wrap.classList.remove('hidden'); $('target-label').textContent = 'Giros límite:'; $('target').value = 20; }
+  else wrap.classList.add('hidden');
+}
+$('mode').onchange = updateMode; updateMode();
+
+function updateHud() {
+  $('hud-q').textContent = `📋 ${G.qCount} / ${Q.length}`;
+  $('hud-p').textContent = `👥 ${G.players.length}`;
+}
+
+/* ============ TEMPORIZADOR ============ */
+function clearTimer() { clearInterval(G.tInt); G.tInt = null; }
+function startTimer(secs, onEnd) {
+  clearTimer();
+  G.deadline = Date.now() + secs * 1000; G.lastLeft = -1;
+  const tick = () => {
+    if (G.paused) return;
+    const left = Math.max(0, Math.ceil((G.deadline - Date.now()) / 1000));
+    const t = $('timer');
+    if (t) { t.textContent = left; t.classList.toggle('low', left <= 5); }
+    if (left !== G.lastLeft) {
+      G.lastLeft = left;
+      if (left > 0 && left <= 5) playSound('beep'); else if (left === 0) playSound('buzz');
+    }
+    if (left <= 0) { clearTimer(); onEnd(); }
+  };
+  tick(); G.tInt = setInterval(tick, 250);
+}
+function finishQuestion() { if (!G.qActive || G.resolving || G.paused) return; revelarYAsignarPuntos(G.curPts); }
+
+/* ============ GIRO AUTOMÁTICO ============ */
+function showWheel() { $('wheel-stage').classList.remove('hidden'); $('qarea').classList.add('hidden'); }
+function scheduleSpin(delay) {
+  clearTimeout(G.spinT);
+  if (!G.autoSpin) { $('turn').textContent = '¡Gira la ruleta!'; return; }
+  G.spinT = setTimeout(() => {
+    if (!G.started || G.busy) return;
+    if (G.paused) { G.pendingSpin = true; return; }
+    spin();
+  }, delay || 1400);
+}
+$('btn-auto').onclick = () => {
+  G.autoSpin = !G.autoSpin;
+  $('btn-auto').classList.toggle('off', !G.autoSpin);
+  $('btn-auto').title = 'Giro automático: ' + (G.autoSpin ? 'activado' : 'desactivado');
+  if (G.autoSpin && G.started && !G.busy && !$('wheel-stage').classList.contains('hidden')) scheduleSpin(600);
+  else if (!G.autoSpin) { clearTimeout(G.spinT); if (!G.busy) $('turn').textContent = '¡Gira la ruleta!'; }
+};
+
+/* ============ PAUSA ============ */
+function pauseGame() {
+  if (!G.started || G.paused) return;
+  G.paused = true; G.pausedAt = Date.now();
+  socket.emit('pause_game');
+  stopMusic();
+  $('modal-pause').classList.remove('hidden');
+}
+function resumeGame() {
+  if (!G.paused) return;
+  G.deadline += Date.now() - G.pausedAt;
+  G.paused = false;
+  socket.emit('resume_game');
+  $('modal-pause').classList.add('hidden');
+  startMusic();
+  if (G.pendingDecide) { G.pendingDecide = false; decide(); return; }
+  if (G.pendingSpin) { G.pendingSpin = false; spin(); return; }
+  const c = $('ans-counter');
+  if (G.qActive && c) {
+    const [a, b] = c.textContent.split('/').map(x => parseInt(x, 10));
+    if (b > 0 && a >= b) setTimeout(finishQuestion, 500);
+  }
+}
+$('btn-pause').onclick = pauseGame;
+$('btn-resume').onclick = resumeGame;
+
+/* ============ SOCKET.IO + QR local ============ */
+const socket = io({ transports: ['websocket'], reconnectionDelay: 200, reconnectionDelayMax: 1000 });
+let serverPlayersList = [], firstConnect = true;
+
+socket.on('connect', () => { socket.emit('host_join', firstConnect); firstConnect = false; });
+
+function loadQR() {
+  fetch('/qr.svg?t=' + Date.now())
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(svg => { $('qrcode').innerHTML = svg; })
+    .catch(() => {
+      $('qrbox').innerHTML = '<div class="qrfail">QR no disponible<small>Instala el paquete con <b>npm install qrcode</b> y reinicia el servidor. Mientras tanto, escribe la dirección de arriba en el celular.</small></div>';
+    });
+}
+loadQR();
+fetch('/info').then(r => r.json()).then(d => { $('join-url').textContent = d.url; })
+  .catch(() => { $('join-url').textContent = 'http://IP-de-esta-laptop:3000/mando.html'; });
+
+window.kickPlayer = function (id) {
+  if (!confirm('¿Expulsar a este jugador?')) return;
+  socket.emit('kick_player', id);
+  const r = document.getElementById('rr-' + id); if (r) r.remove();
+};
+
+socket.on('update_players', list => {
+  serverPlayersList = list;
+  $('names').innerHTML = `<h3 style="margin:0 0 10px">Jugadores listos (${list.length})</h3>` +
+    (list.length ? list.map(sp => `<span class="chip">${sp.online === false ? '⚠️' : '✅'} ${esc(sp.name)}<button class="kick" title="Expulsar" onclick="kickPlayer('${esc(sp.id)}')">✕</button></span>`).join('') : '<p style="opacity:.8;margin:0;font-weight:700">Escanea el QR para unirte</p>');
+  $('btn-start').classList.toggle('hidden', !list.length || G.started);
+
+  if (G.started) {
+    G.players = G.players.filter(p => list.some(sp => sp.id === p.id));
+    list.forEach(sp => {
+      const ex = G.players.find(p => p.id === sp.id);
+      if (!ex) G.players.push({ id: sp.id, name: sp.name, avatar: AVATARS[G.players.length % AVATARS.length] });
+      else ex.name = sp.name;
+    });
+    updateHud();
+  }
+});
+
+socket.on('answer_update', (count, total, answersObj) => {
+  currentAnswersObj = answersObj;
+  const c = $('ans-counter');
+  if (c) { c.innerText = count + ' / ' + total; c.style.color = count === total && count > 0 ? '#7CFC00' : ''; }
+  if (G.qActive && !G.resolving && total > 0 && count >= total) {
+    setTimeout(() => { if (G.qActive && !G.resolving && !G.paused) finishQuestion(); }, 800);
+  }
+});
+
+function getRank(cb) {
+  let done = false;
+  const t = setTimeout(() => { if (!done) { done = true; cb(null); } }, 2000);
+  socket.emit('get_ranking', r => { if (!done) { done = true; clearTimeout(t); cb(r); } });
+}
+
+/* ============ MARCADOR (overlay) ============ */
+let rankOnClose = null;
+function showPartial(rank, onClose) {
+  rankOnClose = onClose || null;
+  const max = Math.max(1, ...rank.map(p => p.score));
+  const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+  $('rank-list').innerHTML = rank.slice(0, 8).map((p, i) =>
+    `<div class="rrow" id="rr-${esc(p.id)}"><span class="rpos">${medal(i)}</span><span class="rname">${esc(p.name)}</span><div class="rbar"><i style="width:${Math.round(p.score / max * 100)}%"></i></div><b class="rsc">${p.score}</b><button class="kick" title="Expulsar" onclick="kickPlayer('${esc(p.id)}')">✕</button></div>`
+  ).join('') || '<p style="text-align:center">Sin jugadores</p>';
+  $('modal-rank').classList.remove('hidden');
+}
+$('rank-close').onclick = () => {
+  $('modal-rank').classList.add('hidden');
+  const cb = rankOnClose; rankOnClose = null; if (cb) cb();
+};
+$('btn-rank').onclick = () => getRank(r => { if (r) showPartial(r, null); });
+
+/* ============ INICIO ============ */
+function startGame() {
+  if (!serverPlayersList.length) return;
+  const needTarget = G.mode !== 'marathon'; const target = parseInt($('target').value, 10);
+  if (needTarget && !(target >= 1)) return; G.target = needTarget ? Math.min(target, 100000) : 0;
+  G.secs = parseInt($('qtime').value, 10) || 20;
+  G.autoSpin = $('autospin').checked;
+
+  const av = shuffle(AVATARS);
+  G.players = serverPlayersList.map((sp, k) => ({ id: sp.id, name: sp.name.trim(), avatar: av[k % av.length] }));
+  socket.emit('start_game');
+  if (isMuted) toggleMute(); else ac();
+  playSound('win');
+  beginRound();
+}
+$('btn-start').onclick = startGame;
+
+function beginRound() {
+  clearTimeout(G.spinT);
+  G.turns = 0; G.qCount = 0; G.item = null; G.busy = false; G.resolving = false; G.started = true; G.finalRank = [];
+  G.qActive = false; G.lastQ = false; G.partialAt = 0; G.paused = false; G.pendingDecide = false; G.pendingSpin = false; clearTimer();
+  newQueues();
+  ['setup', 'end'].forEach(id => $(id).classList.add('hidden'));
+  $('game').classList.remove('hidden'); $('game').classList.add('pop'); $('spin').disabled = false;
+  ['btn-rank', 'btn-pause', 'btn-auto', 'hud'].forEach(id => $(id).classList.remove('hidden'));
+  $('btn-auto').classList.toggle('off', !G.autoSpin);
+  showWheel(); $('landed').innerHTML = '';
+  $('turn').textContent = G.autoSpin ? '¡Prepárense, la ruleta va a girar!' : '¡Gira la ruleta!';
+  updateHud();
+  startMusic('lobby');
+  scheduleSpin(1800);
+}
+
+function spin() {
+  if (!G.started || G.busy || G.paused) return;
+  if (!questionsLeft()) { endGame(); return; }
+  clearTimeout(G.spinT);
+  G.busy = true; $('spin').disabled = true;
+  showWheel();
+  $('turn').textContent = '¡Girando…!'; $('landed').innerHTML = '';
+
+  const avail = G.queues.map((q, i) => q.length ? i : -1).filter(i => i >= 0);
+  G.seg = avail[Math.random() * avail.length | 0];
+  const jitter = (Math.random() - .5) * SEG_ANG * .6;
+  const base = ((360 - center(G.seg) + jitter) % 360 + 360) % 360;
+  G.rot += (4 + (Math.random() * 4 | 0)) * 360 + ((base - (G.rot % 360)) + 360) % 360;
+  $('wheel').style.transform = `rotate(${G.rot}deg)`;
+
+  for (let k = 1; k <= 30; k++) setTimeout(() => { if (!G.paused) playSound('tick'); }, 4200 * (1 - Math.pow(1 - k / 30, 2)) * .97);
+  setTimeout(landing, 4350);
+}
+$('spin').onclick = spin;
+
+function landing() {
+  const s = SEGS[G.seg];
+  $('turn').textContent = '¡Cayó en!';
+  $('landed').innerHTML = `<span class="lp"><span class="lp-e">${s.e}</span>${esc(s.n)}</span>`;
+  playSound('land');
+  setTimeout(decide, 1300);
+}
+
+function decide() {
+  if (G.paused) { G.pendingDecide = true; return; }
+  G.turns++; G.item = G.queues[G.seg].pop(); G.resolving = false; currentAnswersObj = {};
+  const s = SEGS[G.seg];
+  $('wheel-stage').classList.add('hidden');
+  const qa = $('qarea'); qa.innerHTML = ''; qa.classList.remove('hidden'); qa.classList.remove('pop'); void qa.offsetWidth; qa.classList.add('pop');
+
+  if (G.seg === EVT) {
+    G.lastQ = false;
+    playSound('event');
+    qa.innerHTML = `<div class="panel" style="max-width:720px;margin:0 auto"><p class="evt-title">¡Evento de sustentabilidad! 🌿</p><p class="evt-text">${esc(G.item[0])}</p>
+      <button class="k-btn" id="evt-apply" onclick="aplicarEvento()">Aplicar evento</button>
+      <p id="evt-result" class="hidden"></p>
+      <button class="k-btn blue hidden" id="evt-go" onclick="advance()">Continuar ⏭</button></div>`;
+  } else {
+    G.lastQ = true; G.qCount++; updateHud();
+    const [, subtema, lv, q, , , why] = G.item;
+    const [name, pts] = LVL[lv];
+    const { opts, ans, ci } = makeOptions(G.item);
+    G.correctIndex = ci;
+    G.curAns = ans;
+    G.curWhy = why;
+    G.curPts = pts;
+
+    qa.innerHTML = `
+      <div class="qtop">
+        <div id="timer">${G.secs}</div>
+        <div class="mid">
+          <span class="tag">Por ${pts * 100} pts</span>
+          <span class="tag ${s.tc}">${esc(s.t)}</span>
+          <span class="tag seg">${s.e} ${esc(subtema)}</span>
+          <span class="tag lvl">${name}</span>
+        </div>
+        <div class="anscount">👥 <span id="ans-counter">0 / ${G.players.length}</span></div>
+      </div>
+      <p id="q-text">${esc(q)}</p>
+      <div class="kahoot-grid" id="k-grid">
+        ${opts.map((o, i) => `<div class="k-opt ${SHAPES[i][0]}" id="opt-${i}" style="animation-delay:${i * .07}s"><span class="k-shape">${SHAPES[i][1]}</span><span>${esc(o)}</span></div>`).join('')}
+      </div>
+      <div class="evalrow" id="eval-box"><button class="k-btn blue" onclick="finishQuestion()">Evaluar ya 👁️</button></div>
+      <div id="answer-area" class="answer-area hidden">
+        <div class="chart" id="chart"></div>
+        <p id="answer-text"></p>
+        <p id="stat-text"></p>
+        <p id="streak-text"></p>
+        <p id="why-text"></p>
+        <div style="text-align:center"><button class="k-btn" onclick="advance()">Siguiente ⏭</button></div>
+      </div>`;
+    G.qActive = true;
+    startMusic('question');
+    socket.emit('question_ready', G.secs);
+    startTimer(G.secs, finishQuestion);
+  }
+}
+
+window.aplicarEvento = function () {
+  if (G.resolving) return; G.resolving = true;
+  const [text, target, delta] = G.item;
+  $('evt-apply').classList.add('hidden');
+  const showDone = names => {
+    const r = $('evt-result');
+    r.innerHTML = names && names.length ? `Afectados: <b>${names.map(esc).join(', ')}</b>` : 'Nadie fue afectado';
+    r.classList.remove('hidden'); $('evt-go').classList.remove('hidden');
+  };
+  let answered = false;
+  const fb = setTimeout(() => { if (!answered) { answered = true; showDone([]); } }, 2000);
+  socket.emit('apply_event', target, delta, text, res => {
+    if (answered) return; answered = true; clearTimeout(fb);
+    showDone(res && res.affected);
+  });
+  playSound(delta >= 0 ? 'win' : 'lose');
+};
+
+function drawChart(counts, ci) {
+  const max = Math.max(1, ...counts);
+  $('chart').innerHTML = counts.map((n, i) =>
+    `<div class="cbar ${i === ci ? 'right' : 'wrong'}"><div class="n">${n}</div><div class="fill" style="height:6px;background:${SHAPE_COLORS[i]}" data-h="${Math.max(30, Math.round(n / max * 100))}">${SHAPES[i][1]}${i === ci ? ' ✔' : ''}</div></div>`
+  ).join('');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll('#chart .fill').forEach(f => { f.style.height = f.dataset.h + 'px'; });
+  }));
+}
+
+window.revelarYAsignarPuntos = function (pts) {
+  if (G.resolving) return; G.resolving = true; G.qActive = false; clearTimer();
+  const ci = G.correctIndex;
+  const t = $('timer'); if (t) t.style.visibility = 'hidden';
+  $('eval-box').classList.add('hidden');
+  for (let i = 0; i < 4; i++) $('opt-' + i).classList.add(i === ci ? 'opt-correct' : 'opt-faded');
+
+  const a = $('answer-area'); a.classList.remove('hidden'); a.classList.add('pop');
+  $('answer-text').textContent = '✔ Respuesta correcta: ' + G.curAns;
+  $('why-text').textContent = 'Fundamentación: ' + G.curWhy;
+  startMusic('lobby');
+
+  socket.emit('close_answers');
+  socket.emit('send_results', ci, pts, G.curAns, res => {
+    const ans = (res && res.answers) || currentAnswersObj;
+    const total = Object.keys(ans).length;
+    const good = Object.values(ans).filter(v => v === ci).length;
+    const counts = (res && res.counts) || [0, 1, 2, 3].map(k => Object.values(ans).filter(v => v === k).length);
+    drawChart(counts, ci);
+    $('stat-text').textContent = total ? `${good} de ${total} jugador${total === 1 ? '' : 'es'} acertaron` : 'Nadie respondió';
+    const st = (res && res.streaks) || [];
+    $('streak-text').textContent = st.length ? '🔥 En racha: ' + st.map(s => `${s.name} ×${s.streak}`).join(' · ') : '';
+    playSound(good ? 'win' : 'lose');
+  });
+};
+
+function advance() {
+  if (!G.busy || G.paused) return; G.busy = false;
+  clearTimer(); G.qActive = false;
+  socket.emit('back_to_waiting');
+
+  const next = () => {
+    $('qarea').classList.add('hidden');
+    showWheel(); $('landed').innerHTML = '';
+    $('spin').disabled = false;
+    $('turn').textContent = G.autoSpin ? 'Preparando el siguiente giro…' : '¡Gira la ruleta!';
+    scheduleSpin(1400);
+  };
+  const finish = () => setTimeout(endGame, 300);
+
+  if (!questionsLeft() || (G.mode === 'turns' && G.turns >= G.target)) { finish(); return; }
+
+  const duePartial = G.lastQ && G.qCount > 0 && G.qCount % 5 === 0 && G.partialAt !== G.qCount;
+  if (G.mode === 'points' || duePartial) {
+    getRank(rank => {
+      if (G.mode === 'points' && rank && rank.some(p => p.score >= G.target)) { finish(); return; }
+      if (duePartial && rank) { G.partialAt = G.qCount; showPartial(rank, next); }
+      else next();
+    });
+    return;
+  }
+  next();
+}
+
+function endGame() {
+  if (!G.started) return;
+  clearTimer(); clearTimeout(G.spinT); G.paused = false; $('modal-pause').classList.add('hidden');
+  socket.emit('end_game');
+  getRank(rank => {
+    if (!rank) {
+      alert('El servidor no respondió con el ranking. Reinicia el servidor (Ctrl+C y node server.js).');
+      rank = G.finalRank || [];
+    }
+    G.finalRank = rank;
+    G.started = false;
+    stopMusic();
+    ['btn-rank', 'btn-pause', 'btn-auto', 'hud'].forEach(id => $(id).classList.add('hidden'));
+    $('modal-rank').classList.add('hidden');
+    $('game').classList.add('hidden'); $('end').classList.remove('hidden');
+    playSound('win');
+    const order = [1, 0, 2];
+    const top = G.finalRank.slice(0, 3);
+    $('podium').innerHTML = order.filter(i => top[i]).map(i => {
+      const p = top[i], pl = G.players.find(x => x.id === p.id), av = pl ? pl.avatar : '🌍';
+      return `<div class="pcol p${i + 1}"><div class="pavatar">${av}</div><div class="kname">${esc(p.name)}</div><div class="kscore">${p.score} pts</div><div class="pblock">${i + 1}</div></div>`;
+    }).join('');
+    if (window.confetti) {
+      confetti({ particleCount: 160, spread: 100, origin: { y: .6 } });
+      setTimeout(() => confetti({ particleCount: 100, angle: 60, spread: 70, origin: { x: 0 } }), 500);
+      setTimeout(() => confetti({ particleCount: 100, angle: 120, spread: 70, origin: { x: 1 } }), 500);
+    }
+  });
+}
+
+/* ============ EXPORTAR A EXCEL ============ */
+window.exportToExcel = function () {
+  const rank = G.finalRank || [];
+  const n = G.qCount || 0;
+  const fecha = new Date().toLocaleString('es-MX');
+  const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+
+  const rows = rank.map((p, i) => {
+    const ok = p.ok, ko = Math.max(0, n - ok);
+    const pct = n ? ok / n : 0;
+    const bg = i % 2 ? '#F3EAFB' : '#FFFFFF';
+    const pctColor = pct >= .8 ? '#26890C' : pct >= .5 ? '#D89E00' : '#E21B3C';
+    return `<tr style="background:${bg}">
+      <td style="text-align:center;font-weight:bold">${medal(i)} ${i + 1}</td>
+      <td style="font-weight:bold">${esc(p.name)}</td>
+      <td style="text-align:center">${p.score}</td>
+      <td style="text-align:center;color:#26890C;font-weight:bold">${ok}</td>
+      <td style="text-align:center;color:#E21B3C;font-weight:bold">${ko}</td>
+      <td style="text-align:center;font-weight:bold;color:${pctColor}">${(pct * 100).toFixed(1)}%</td>
+    </tr>`;
+  }).join('');
+
+  const th = 'background:#46178F;color:#FFFFFF;font-weight:bold;text-align:center;padding:10px;border:1px solid #33106B;font-size:12pt';
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="UTF-8">
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Resultados</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+<style>td,th{font-family:Calibri,Arial,sans-serif;font-size:11pt;padding:8px;border:1px solid #CFC1E6;vertical-align:middle}</style></head>
+<body>
+<table>
+  <tr><td colspan="6" style="background:#46178F;color:#FFFFFF;font-size:18pt;font-weight:bold;text-align:center;height:40px">RULETA SUSTENTABLE · Reporte de resultados</td></tr>
+  <tr><td colspan="6" style="text-align:center;color:#555">Temas 3, 4 y 5 · Escenarios Sociocultural, Económico y Modificado &nbsp;|&nbsp; Fecha: ${esc(fecha)} &nbsp;|&nbsp; Preguntas jugadas: ${n} &nbsp;|&nbsp; Jugadores: ${rank.length}</td></tr>
+  <tr><td colspan="6"></td></tr>
+  <tr><th style="${th}">Posición</th><th style="${th}">Jugador</th><th style="${th}">Puntos</th><th style="${th}">Correctas</th><th style="${th}">Incorrectas</th><th style="${th}">% de Acierto</th></tr>
+  ${rows}
+  <tr><td colspan="6" style="color:#777;font-size:9pt">Incorrectas incluye las preguntas sin responder. % de acierto = correctas ÷ preguntas jugadas. Los puntos incluyen bonos por velocidad, rachas y eventos de sustentabilidad.</td></tr>
+</table></body></html>`;
+
+  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'Resultados_Ruleta_Temas_3_4_5.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+
+$('btn-new').onclick = () => window.location.reload();
+</script>
+</body>
+</html>

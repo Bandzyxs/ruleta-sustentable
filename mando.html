@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mando · Ruleta Ambiental</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  @font-face{font-family:'Montserrat';font-weight:600;font-display:swap;src:url('/fonts/montserrat-latin-600-normal.woff2') format('woff2')}
+  @font-face{font-family:'Montserrat';font-weight:800;font-display:swap;src:url('/fonts/montserrat-latin-800-normal.woff2') format('woff2')}
+  @font-face{font-family:'Montserrat';font-weight:900;font-display:swap;src:url('/fonts/montserrat-latin-900-normal.woff2') format('woff2')}
+  :root{
+    --k-purple:#46178f;
+    --k-red:#e21b3c; --k-red-d:#a8112b;
+    --k-blue:#1368ce; --k-blue-d:#0d4a96;
+    --k-yellow:#d89e00; --k-yellow-d:#9c7300;
+    --k-green:#26890c; --k-green-d:#1a6208;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:18px;min-height:100vh;background:var(--k-purple);color:#fff;font-family:'Montserrat',system-ui,sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:background .35s;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;overflow-x:hidden}
+  .hidden{display:none!important}
+
+  .card{background:#fff;color:#333;padding:28px 24px;border-radius:12px;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 0 rgba(0,0,0,.25);animation:pop .45s cubic-bezier(.2,1.4,.4,1) both}
+  .logo{font-weight:900;font-size:1.9em;color:var(--k-purple);margin:0 0 18px;letter-spacing:-1px}
+  input{width:100%;padding:15px;font-size:1.2em;font-family:inherit;font-weight:800;border:3px solid #cfcfcf;border-radius:8px;text-align:center;margin-bottom:16px;outline:none;color:#333;user-select:text}
+  input:focus{border-color:#333}
+  .go{width:100%;padding:16px;font-size:1.2em;font-family:inherit;font-weight:900;background:#333;color:#fff;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;box-shadow:0 5px 0 #000;transition:transform .08s,box-shadow .08s}
+  .go:active{transform:translateY(5px);box-shadow:0 0 0 #000}
+  .go:disabled{opacity:.6}
+
+  .center{text-align:center;animation:pop .4s both}
+  .wait-msg{font-size:1.7em;font-weight:900}
+  .wait-sub{font-weight:600;opacity:.85;margin-top:6px}
+  .spinner{margin:22px auto;width:54px;height:54px;border:7px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
+  #conn{position:fixed;top:0;left:0;right:0;padding:7px;background:#e53935;font-weight:900;font-size:.9em;text-align:center;z-index:50}
+
+  #tbar{position:fixed;top:0;left:0;right:0;height:12px;background:rgba(0,0,0,.3);z-index:40}
+  #tfill{height:100%;width:100%;background:#fff;transform-origin:left;transition:background .3s}
+  #tfill.low{background:#ff5252}
+
+  #options-screen{width:100%;max-width:420px}
+  .color-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;width:100%;height:68vh;margin:0 auto}
+  .c-btn{border:none;border-radius:10px;font-size:4.2em;display:flex;justify-content:center;align-items:center;color:#fff;cursor:pointer;transition:transform .08s,box-shadow .08s;animation:pop .35s both;text-shadow:0 3px 0 rgba(0,0,0,.2)}
+  .c-btn:active{transform:translateY(8px);box-shadow:0 0 0 transparent!important}
+  .c-red{background:var(--k-red);box-shadow:0 8px 0 var(--k-red-d)}
+  .c-blue{background:var(--k-blue);box-shadow:0 8px 0 var(--k-blue-d)}
+  .c-yellow{background:var(--k-yellow);box-shadow:0 8px 0 var(--k-yellow-d)}
+  .c-green{background:var(--k-green);box-shadow:0 8px 0 var(--k-green-d)}
+
+  .bg-green{background:#26890c!important}
+  .bg-red{background:#e21b3c!important}
+  .bg-orange{background:#d89e00!important}
+  .bg-final{background:var(--k-purple)!important}
+  #result-screen{width:100%;max-width:420px;text-align:center}
+  #res-icon{font-size:5em;margin-bottom:4px;animation:bounce .6s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes bounce{from{transform:scale(0) rotate(-20deg)}to{transform:none}}
+  #res-title{font-size:2.2em;font-weight:900;margin-bottom:2px;text-transform:uppercase}
+  #res-sub{font-size:1.15em;font-weight:800;opacity:.95;margin-bottom:12px}
+  .correct-box{background:#fff;color:#333;border-radius:12px;padding:10px 12px;margin:0 0 12px;box-shadow:0 5px 0 rgba(0,0,0,.25);animation:pop .4s .1s both;text-align:left;display:flex;align-items:center;gap:10px}
+  .correct-box small{display:block;font-weight:800;color:#777;font-size:.7em;text-transform:uppercase;letter-spacing:1px}
+  .correct-box .txt{font-weight:900;font-size:1.02em;line-height:1.25}
+  .shape{min-width:46px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.7em;font-weight:900}
+  .streak{background:#ff9800;color:#fff;border-radius:12px;padding:8px 12px;margin:0 0 12px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.25);animation:pop .4s .2s both}
+  .stats{background:rgba(0,0,0,.28);border-radius:14px;padding:14px;animation:pop .5s .15s both}
+  .stat-score{font-size:2.4em;font-weight:900;line-height:1}
+  .stat-score small{font-size:.38em;font-weight:700;opacity:.85;display:block;margin-top:4px;letter-spacing:1px}
+  .stat-rank{margin-top:10px;display:inline-block;background:#fff;color:#333;padding:7px 18px;border-radius:30px;font-weight:900;font-size:1.1em;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .stat-gap{margin-top:10px;font-weight:800;font-size:1em;line-height:1.4}
+  .stat-gap b{color:#ffe082}
+
+  #event-screen{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center;animation:pop .35s both}
+  #event-screen.good{background:#26890c}
+  #event-screen.bad{background:#e21b3c}
+  #ev-icon{font-size:5em}
+  #ev-delta{font-size:3.4em;font-weight:900;margin:4px 0}
+  #ev-text{font-size:1.2em;font-weight:800;max-width:340px}
+
+  #pause-screen{position:fixed;inset:0;z-index:35;background:rgba(51,16,107,.96);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;animation:pop .3s both}
+  #pause-screen .big{font-size:4.5em}
+
+  #kicked-screen{text-align:center;animation:pop .4s both}
+  #kicked-screen .big{font-size:4.5em}
+</style>
+</head>
+<body>
+  <div id="conn" class="hidden">Reconectando…</div>
+  <div id="tbar" class="hidden"><div id="tfill"></div></div>
+
+  <div id="login-screen" class="card">
+    <h2 class="logo">Ruleta Ambiental</h2>
+    <input type="text" id="playerName" placeholder="Tu apodo" maxlength="15" autocomplete="off">
+    <button class="go" id="btn-join">¡Entrar!</button>
+  </div>
+
+  <div id="waiting-screen" class="hidden center">
+    <div id="wait-msg" class="wait-msg">¡Estás dentro!</div>
+    <div class="spinner"></div>
+    <div id="wait-sub" class="wait-sub">El juego está por comenzar...</div>
+  </div>
+
+  <div id="options-screen" class="hidden">
+    <div class="color-grid">
+      <button class="c-btn c-red" data-i="0">▲</button>
+      <button class="c-btn c-blue" data-i="1">◆</button>
+      <button class="c-btn c-yellow" data-i="2">●</button>
+      <button class="c-btn c-green" data-i="3">■</button>
+    </div>
+  </div>
+
+  <div id="result-screen" class="hidden">
+    <div id="res-icon"></div>
+    <div id="res-title"></div>
+    <div id="res-sub"></div>
+    <div id="streak-box" class="streak hidden"></div>
+    <div id="correct-box" class="correct-box hidden">
+      <div class="shape" id="cb-shape"></div>
+      <div><small>La respuesta correcta era</small><div class="txt" id="cb-text"></div></div>
+    </div>
+    <div class="stats" id="stats">
+      <div class="stat-score"><span id="st-score">0</span><small>PUNTOS</small></div>
+      <div class="stat-rank" id="st-rank"></div>
+      <div class="stat-gap" id="st-gap"></div>
+    </div>
+  </div>
+
+  <div id="kicked-screen" class="hidden">
+    <div class="big">🚫</div>
+    <div class="wait-msg">Fuiste expulsado</div>
+    <div class="wait-sub">El anfitrión te sacó de esta partida.</div>
+  </div>
+
+  <div id="event-screen" class="hidden">
+    <div id="ev-icon"></div>
+    <div id="ev-delta"></div>
+    <div id="ev-text"></div>
+  </div>
+
+  <div id="pause-screen" class="hidden">
+    <div class="big">⏸</div>
+    <div class="wait-msg">Juego en pausa</div>
+    <div class="wait-sub">El anfitrión lo reanudará en un momento.</div>
+  </div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+const ss = { get: k => { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let pid = ls.get('pid');
+if (!pid) { pid = 'p' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ls.set('pid', pid); }
+
+const SCREENS = ['login-screen', 'waiting-screen', 'options-screen', 'result-screen', 'kicked-screen'];
+const show = id => { SCREENS.forEach(s => $(s).classList.toggle('hidden', s !== id)); if (id !== 'options-screen') stopTimer(); };
+function wait(msg, sub) { document.body.className = ''; $('wait-msg').textContent = msg; $('wait-sub').textContent = sub; show('waiting-screen'); }
+
+const socket = io({ transports: ['websocket'], reconnectionDelay: 200, reconnectionDelayMax: 1000, timeout: 4000 });
+let myName = null, answered = false, kicked = false, isPaused = false;
+
+const join = () => { if (myName && !kicked) socket.emit('join_game', pid, myName); };
+socket.on('connect', () => { $('conn').classList.add('hidden'); join(); });
+socket.on('disconnect', () => $('conn').classList.remove('hidden'));
+socket.on('connect_error', () => $('conn').classList.remove('hidden'));
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !socket.connected) socket.connect(); });
+
+/* ---- Barra de tiempo ---- */
+let tTimer = null;
+function startTimer(remaining, total) {
+  stopTimer();
+  if (isPaused || !(remaining > 0) || !(total > 0)) return;
+  const bar = $('tbar'), fill = $('tfill');
+  bar.classList.remove('hidden'); fill.classList.remove('low');
+  fill.style.transition = 'none';
+  fill.style.transform = `scaleX(${Math.min(1, remaining / total)})`;
+  void fill.offsetWidth;
+  fill.style.transition = `transform ${remaining}ms linear, background .3s`;
+  fill.style.transform = 'scaleX(0)';
+  tTimer = setTimeout(() => fill.classList.add('low'), Math.max(0, remaining - total * 0.25));
+}
+function stopTimer() { clearTimeout(tTimer); $('tbar').classList.add('hidden'); }
+
+/* ---- Entrada ---- */
+let savedName = ls.get('name') || '';
+if (savedName.includes('object')) savedName = '';
+$('playerName').value = savedName;
+
+function joinGame() {
+  const name = $('playerName').value.trim();
+  if (!name) return alert('Escribe un nombre');
+  $('btn-join').disabled = true;
+  $('btn-join').textContent = 'Conectando...';
+  myName = name;
+  ls.set('name', name);
+  join();
+  setTimeout(() => {
+    if (!$('login-screen').classList.contains('hidden')) {
+      $('btn-join').disabled = false;
+      $('btn-join').textContent = '¡Entrar!';
+    }
+  }, 2000);
+}
+$('btn-join').onclick = joinGame;
+$('playerName').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
+
+const saved = ss.get('name');
+if (saved) { myName = saved; wait('Reconectando...', ''); }
+
+socket.on('joined_success', name => {
+  myName = name;
+  ss.set('name', name);
+  ls.set('name', name);
+  $('login-screen').classList.add('hidden');
+});
+
+socket.on('state', s => {
+  $('login-screen').classList.add('hidden');
+  isPaused = !!s.paused;
+  $('pause-screen').classList.toggle('hidden', !isPaused);
+  if (s.phase === 'question') {
+    answered = s.answered != null;
+    if (answered) sent();
+    else if (s.remaining > 0) showColors(s.duration, s.remaining);
+    else wait('¡Tiempo!', 'Mira la pantalla principal');
+  }
+  else if (s.phase === 'results') showResult(s.correct, s.answered, s.personal);
+  else wait('¡Estás dentro!', 'El juego está por comenzar...');
+});
+
+/* ---- Responder ---- */
+function showColors(dur, remaining) {
+  answered = false; document.body.className = ''; show('options-screen');
+  startTimer(remaining != null ? remaining : dur, dur);
+}
+const sent = () => wait('¡Respuesta enviada!', 'Esperando a los demás...');
+function sendAnswer(i) {
+  if (answered || isPaused) return; answered = true;
+  socket.emit('send_answer', i);
+  try { navigator.vibrate && navigator.vibrate(30); } catch (e) {}
+  sent();
+}
+document.querySelectorAll('.c-btn').forEach(b =>
+  b.addEventListener('pointerdown', e => { e.preventDefault(); sendAnswer(+b.dataset.i); }));
+socket.on('show_colors', dur => showColors(dur, dur));
+socket.on('time_up', () => { if (!answered && !$('options-screen').classList.contains('hidden')) { answered = true; wait('¡Tiempo!', 'Mira la pantalla principal'); } });
+
+/* ---- Pausa ---- */
+socket.on('paused', () => { isPaused = true; stopTimer(); $('pause-screen').classList.remove('hidden'); });
+socket.on('resumed', info => {
+  isPaused = false; $('pause-screen').classList.add('hidden');
+  if (info && info.phase === 'question' && info.remaining > 0 && !answered && !$('options-screen').classList.contains('hidden'))
+    startTimer(info.remaining, info.duration);
+});
+
+/* ---- Veredicto + posición ---- */
+const R = {
+  ok:   ['bg-green',  '✔️', '¡Correcto!',    ''],
+  ko:   ['bg-red',    '❌', 'Incorrecto',    'Más suerte a la próxima'],
+  none: ['bg-orange', '⏳', 'Tiempo fuera',  'No enviaste tu respuesta']
+};
+const SHAPES = [['#e21b3c','▲'],['#1368ce','◆'],['#d89e00','●'],['#26890c','■']];
+
+function ordinal(n) {
+  const w = {1:'1er',2:'2do',3:'3er',4:'4to',5:'5to',6:'6to',7:'7mo',8:'8vo',9:'9no',10:'10mo'};
+  return w[n] || n + '°';
+}
+const pts = n => n + (n === 1 ? ' punto' : ' puntos');
+
+function fillStats(p, final) {
+  if (!p) { $('stats').classList.add('hidden'); return; }
+  $('stats').classList.remove('hidden');
+  $('st-score').textContent = p.score;
+  $('st-rank').textContent = final
+    ? (p.rank === 1 ? '🏆 ¡Ganaste!' : `Terminaste en ${ordinal(p.rank)} lugar`)
+    : `Vas en ${ordinal(p.rank)} lugar`;
+
+  let gap = '';
+  if (p.total <= 1) gap = '';
+  else if (p.rank === 1) gap = p.leadOver > 0
+    ? `¡Vas en la cima! Tienes <b>${pts(p.leadOver)}</b> de ventaja 🔥`
+    : '¡Vas en la cima, empatado con el segundo!';
+  else gap = p.gap > 0
+    ? `Estás a <b>${pts(p.gap)}</b> de alcanzar a <b>${esc(p.aboveName)}</b>`
+    : `Estás empatado con <b>${esc(p.aboveName)}</b>`;
+  $('st-gap').innerHTML = gap;
+}
+
+function showResult(correct, mine, personal) {
+  const key = !Number.isInteger(mine) ? 'none' : mine === correct ? 'ok' : 'ko';
+  const [bg, icon, title, sub] = R[key];
+  document.body.className = bg;
+  $('res-icon').textContent = icon; $('res-title').textContent = title;
+  $('res-sub').textContent = key === 'ok' && personal && personal.gained ? `+${personal.gained} puntos` : sub;
+
+  const sb = $('streak-box');
+  if (key === 'ok' && personal && personal.streak >= 2) {
+    sb.textContent = `🔥 Racha de ${personal.streak}` + (personal.bonus ? ` · +${personal.bonus} de bono` : ' · ¡una más y ganas bono!');
+    sb.classList.remove('hidden');
+  } else sb.classList.add('hidden');
+
+  const cb = $('correct-box');
+  if (key !== 'ok' && Number.isInteger(correct) && correct >= 0 && correct < 4) {
+    const sh = $('cb-shape'); sh.style.background = SHAPES[correct][0]; sh.textContent = SHAPES[correct][1];
+    $('cb-text').textContent = (personal && personal.correctText) || 'Mira la pantalla principal';
+    cb.classList.remove('hidden');
+  } else cb.classList.add('hidden');
+
+  fillStats(personal, false);
+  show('result-screen');
+}
+socket.on('show_results', showResult);
+socket.on('wait_for_next', () => wait('Preparando...', 'Mira la pantalla principal'));
+
+socket.on('game_over', p => {
+  document.body.className = 'bg-final';
+  $('res-icon').textContent = p && p.rank === 1 ? '🏆' : '🌍';
+  $('res-title').textContent = '¡Fin del juego!';
+  $('res-sub').textContent = 'Gracias por jugar';
+  $('correct-box').classList.add('hidden');
+  $('streak-box').classList.add('hidden');
+  fillStats(p, true);
+  show('result-screen');
+});
+
+/* ---- Evento ambiental ---- */
+let evTimer = null;
+socket.on('event_hit', e => {
+  const good = e.delta >= 0;
+  const box = $('event-screen');
+  box.className = good ? 'good' : 'bad';
+  $('ev-icon').textContent = good ? '🌳' : '🗑️';
+  $('ev-delta').textContent = (good ? '+' : '') + e.delta;
+  $('ev-text').textContent = e.text || (good ? '¡Ganaste puntos!' : '¡Perdiste puntos!');
+  try { navigator.vibrate && navigator.vibrate(good ? 60 : [80, 40, 80]); } catch (err) {}
+  clearTimeout(evTimer);
+  evTimer = setTimeout(() => box.classList.add('hidden'), 4000);
+});
+
+/* ---- Expulsado ---- */
+socket.on('kicked', () => {
+  kicked = true;
+  document.body.className = 'bg-final';
+  $('event-screen').classList.add('hidden');
+  $('pause-screen').classList.add('hidden');
+  show('kicked-screen');
+});
+</script>
+</body>
+</html>
